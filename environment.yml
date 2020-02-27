@@ -1,0 +1,13 @@
+name: sle-xgb
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.7.5
+  - pandas
+  - scikit-learn
+  - matplotlib
+  - jupyterlab
+  - xgboost
+  - hyperopt
+  - shap
