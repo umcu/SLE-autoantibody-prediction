@@ -1,6 +1,17 @@
+# R
 .Rhistory
 .RData
 .Rproj.user
 
+# Microsoft Office
 *.xlsx
 *.xls
+*.ppt
+*.pptx
+
+# Distribution / packaging
+# Python egg metadata, regenerated from source files by setuptools.
+*.egg-info
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
