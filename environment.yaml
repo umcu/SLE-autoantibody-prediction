@@ -13,3 +13,4 @@ dependencies:
   - shap
   - pyreadstat
   - feather-format
+  - seaborn
