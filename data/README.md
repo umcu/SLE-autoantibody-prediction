@@ -5,6 +5,7 @@
 These datasets are ready for analysis
 
 * `data\processed\20190717_Total_Norm-3.xlsx`: SLE dataset used for TB's papers
+* `data\processed\imid.feather`: dataset with only TF microarray chip data, made by combining the four `interim` datasets
 
 ## `/interim`
 

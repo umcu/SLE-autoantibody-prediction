@@ -12,3 +12,4 @@ dependencies:
   - hyperopt
   - shap
   - pyreadstat
+  - feather-format
