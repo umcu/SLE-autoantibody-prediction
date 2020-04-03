@@ -14,3 +14,4 @@ dependencies:
   - pyreadstat
   - feather-format
   - seaborn
+  - umap-learn
