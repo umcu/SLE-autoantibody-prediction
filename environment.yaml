@@ -16,3 +16,6 @@ dependencies:
   - seaborn
   - umap-learn
   - pandas-profiling
+  - pip
+  - pip:
+    - dabl
