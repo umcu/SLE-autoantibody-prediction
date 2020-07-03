@@ -17,6 +17,7 @@ dependencies:
   - umap-learn
   - pandas-profiling
   - statsmodels
+  - ipywidgets
   - pip
   - pip:
     - dabl
