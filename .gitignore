@@ -1,9 +1,19 @@
+# OS
+Thumbs.db
+.DS_Store
+
+# Data
+*.feather
+*.sav
+
 # R
 .Rhistory
 .RData
 .Rproj.user
 
 # Microsoft Office
+*.doc
+*.docx
 *.xlsx
 *.xls
 *.ppt
