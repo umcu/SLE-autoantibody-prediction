@@ -21,3 +21,4 @@ dependencies:
   - pip
   - pip:
     - dabl
+    - git+https://github.com/lcreteig/stability-selection.git@joblib
