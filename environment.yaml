@@ -20,5 +20,7 @@ dependencies:
   - ipywidgets
   - pip
   - pip:
+    - umap-learn[plot]
     - dabl
+    - xlrd
     - git+https://github.com/lcreteig/stability-selection.git@joblib
