@@ -4,23 +4,24 @@ channels:
   - defaults
 dependencies:
   - python=3.7.5
-  - pandas
-  - scikit-learn
-  - matplotlib
-  - jupyterlab
-  - py-xgboost
-  - hyperopt
-  - shap
-  - pyreadstat
-  - feather-format
-  - seaborn
-  - umap-learn
-  - pandas-profiling
-  - statsmodels
-  - ipywidgets
+  - pandas=1.1.0
+  - scikit-learn=0.23.2
+  - matplotlib=3.1.3
+  - jupyterlab=2.1.0
+  - py-xgboost=0.90
+  - hyperopt=0.2.4
+  - shap=0.35.0
+  - pyreadstat=1.0.0
+  - feather-format=0.4.1
+  - seaborn=0.10.1
+  - umap-learn=0.4.6
+  - pandas-profiling=2.4.0
+  - statsmodels=0.11.1
+  - ipywidgets=7.5.1
   - pip
   - pip:
     - umap-learn[plot]
-    - dabl
+    - dabl # requires newer version of sklearn than stability-selection
     - xlrd
+    - lxml
     - git+https://github.com/lcreteig/stability-selection.git@joblib
