@@ -22,6 +22,6 @@ dependencies:
   - pip:
     - umap-learn[plot]
     - dabl # requires newer version of sklearn than stability-selection
-    - xlrd
+    - openpyxl==3.0.7
     - lxml
     - git+https://github.com/lcreteig/stability-selection.git@joblib
