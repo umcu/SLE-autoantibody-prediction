@@ -6,6 +6,15 @@ These datasets are ready for analysis
 
 * `data\processed\20190717_Total_Norm-3.xlsx`: SLE dataset used for TB's papers
 * `data\processed\imid.feather`: dataset with only TF microarray chip data, made by combining the four `interim` datasets
+    - `SLE` patients from `data\interim\Alles 1e sample.sav`
+    - `BBD` controls from `data\processed\TMO.csv`
+    - `nonIMID` patients from `data\interim\Non-Imid control set.sav`
+    - `IMID` patient data from `data\interim\Alles 1e sample.sav`, identified using sample numbers from `data\interim\OtherIMID.sav`
+* `data\processed\rest.feather`: dataset with only TF microarray chip data, made by combining the four `interim` datasets
+    - `preSLE` patients from `data\interim\Alles 1e sample.sav` (using hand-picked list of sample numbers)
+    - `LLD` patients from `data\interim\Alles 1e sample.sav` (subset of `IMID`, where diagnosis is LLD)
+    - `rest_large` group patients: all patients that are not in any of the previously defined groups
+    - `rest` group patients: same as `rest_large`, but excludes those with a pre-existing or future diagnosis (after the sample date)
 
 ## `/interim`
 
