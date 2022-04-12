@@ -3,21 +3,28 @@ Thumbs.db
 .DS_Store
 
 # Data
+# except readmes
+data/*
+!data/README.md
 *.feather
 *.sav
+
+# folders
+reports/*
 
 # R
 .Rhistory
 .RData
 .Rproj.user
 
-# Microsoft Office
+# Documents
 *.doc
 *.docx
 *.xlsx
 *.xls
 *.ppt
 *.pptx
+*.pdf
 
 # Distribution / packaging
 # Python egg metadata, regenerated from source files by setuptools.
