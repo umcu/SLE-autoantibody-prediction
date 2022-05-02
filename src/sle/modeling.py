@@ -43,16 +43,100 @@ def eval_model(model, X: pd.DataFrame, y: pd.Series, target_class: str, control_
     print(classification_report(y, preds, target_names=[control_class, target_class]))
     print(f'N.B.: "recall" = sensitivity for the group in this row (e.g. {target_class}); specificity for the other group ({control_class})\n'\
           f'N.B.: "precision" = PPV for the group in this row (e.g. {target_class}); NPV for the other group ({control_class})\n')
-    # Confusion matrix 
+    # Confusion matrix
     cm = confusion_matrix(y, preds, labels=model.classes_)
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[control_class, target_class])
     disp.plot(cmap='binary')
     # ROC curve
     fpr, tpr, thresholds = roc_curve(y, model.predict_proba(X)[:,1])
     thr_idx = (np.abs(thresholds - threshold)).argmin() # find index of value closest to chosen threshold
-    fig, ax = plt.subplots()
+    _, ax = plt.subplots()
     plot_roc_curve(model, X, y, name = f"{target_class} vs. {control_class}", ax=ax)
     ymin, ymax = ax.get_ylim(); xmin, xmax = ax.get_xlim()
     ax.set_ylim(ymin, ymax);  ax.set_xlim(xmin, xmax)
     plt.vlines(x=fpr[thr_idx], ymin=ymin, ymax=tpr[thr_idx], color='k', linestyle='--', axes=ax) # plot line for fpr at threshold
     plt.hlines(y=tpr[thr_idx], xmin=xmin, xmax=fpr[thr_idx], color='k', linestyle='--', axes=ax) # plot line for tpr at threshold
+
+
+def calc_roc_cv(classifier, cv, X, y):
+    """
+    Calculate true positive rates and AUCs for a cross-validated classifier
+    adapted from https://scikit-learn.org/stable/auto_examples/model_selection/plot_roc_crossval.html
+
+    Args:
+        classifier: a scikit learn model object
+        cv: a sckitlearn cross-validation object
+        X: a pandas dataframe or numpy array of features
+        y: a pandas series or numpy array with class labels
+
+    Returns:
+        tprs: list of true positive rates (one for each cross-validation iteration)
+        aucs: list of ROC AUCS (one for each cross-validation iteration)
+    """
+
+    tprs = []
+    aucs = []
+    mean_fpr = np.linspace(0, 1, 100)
+    clf = clone(classifier) # clone to avoid modifying an already trained estimator
+
+    if isinstance(X, (pd.DataFrame, pd.Series)):
+        X = X.to_numpy()
+    if isinstance(y, (pd.DataFrame, pd.Series)):
+        y = y.to_numpy()
+
+    for _, (train, test) in enumerate(cv.split(X, y)):
+        model = clf.fit(X[train], y[train])
+        y_score = model.predict_proba(X[test])
+        fpr, tpr, _ = roc_curve(y[test], y_score[:, 1])
+        roc_auc = auc(fpr, tpr)
+        interp_tpr = np.interp(mean_fpr, fpr, tpr)
+        interp_tpr[0] = 0.0
+        tprs.append(interp_tpr)
+        aucs.append(roc_auc)
+
+    return tprs, aucs
+
+
+def plot_roc_cv(tprs: List[np.ndarray], aucs: List[np.ndarray], fig, ax, reuse: bool = False,
+                fig_title: str = None, line_color: str = 'b', legend_label: str = 'Mean ROC'):
+    """
+    Plot the ROC curve for a cross-validated classifier
+    adapted from https://scikit-learn.org/stable/auto_examples/model_selection/plot_roc_crossval.html
+
+    Args:
+        tprs: output of calc_roc_cv()
+        aucs: output of plot_roc_cv()
+        fig: matplotlib figure handle to plot to
+        ax: matplotlib axis handle to plot to
+        reuse: boolean; whether the figure/axis already contains a prior ROC curve
+        fig_title: string with figure title
+        line_color: string with matplotlib color abbreviation or hex code
+        legend_label: string with label for the legend
+
+    Returns the matplotlib figure and axis objects
+    """
+
+    mean_fpr = np.linspace(0, 1, 100)
+    mean_tpr = np.mean(tprs, axis=0)
+    mean_tpr[-1] = 1.0
+
+    mean_auc = np.mean(aucs)
+    std_auc = np.std(aucs)
+
+    std_tpr = np.std(tprs, axis=0)
+    tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
+    tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
+
+    if not reuse:
+        ax.plot([0, 1], [0, 1], linestyle='--', lw=1.5, color='k', alpha=.25)
+        ax.set(title=fig_title,
+               xlim=[-0.05, 1.05], xlabel='False positive rate',
+               ylim=[-0.05, 1.05], ylabel='True positive rate')
+
+    ax.plot(mean_fpr, mean_tpr, color=line_color,
+        label=f"{legend_label} (AUC = {mean_auc:0.2f} $\pm$ {std_auc:0.2f})",
+        lw=2, alpha=.8)
+    ax.fill_between(mean_fpr, tprs_lower, tprs_upper, color=line_color, alpha=.2)
+
+    ax.legend(loc="lower right")
+    return fig, ax
