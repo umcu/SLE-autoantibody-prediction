@@ -1,3 +1,8 @@
+"""Functions to assist with fitting, evaluation, and plotting regularized regression models.
+
+    See the main() function and/or run this module as a script for a typical usage example.
+"""
+
 from typing import Tuple, List
 import pandas as pd
 import numpy as np
@@ -119,6 +124,9 @@ def plot_regularization_path(reg_param: np.ndarray, coefs: List[np.ndarray], nnz
     1. lambda on the x-axis, model coefficients on the y-axis
     2. lambda on the x-axis (plus 2nd x-axis with number of non-zero coefficients), model performance on the y-axis
 
+    The first dotted line shows lambda with best performance;
+    the 2nd dotted line shows lambda at 1 standard error below best performance
+
     Args:
         reg_param: same as in regularization_path()
         coefs: output of regularization_path()
@@ -163,7 +171,7 @@ def plot_regularization_path(reg_param: np.ndarray, coefs: List[np.ndarray], nnz
     return ax1, ax2, ax22
 
 
-def coef_plots_regularized(coefs: List[np.ndarray], nnz_coefs: List[int], scores, varnames: List[str]):
+def coef_plots_regularized(coefs: List[np.ndarray], nnz_coefs: List[int], scores, varnames: List[str], num_subplot_cols: int = 5):
     """For a LASSO model, draw a grid of coeffcient plots: one for each value of lambda that led to a different set of coefficients.
     Starts at the model with the best performance, and continues until only a single feature is left.
 
@@ -177,13 +185,12 @@ def coef_plots_regularized(coefs: List[np.ndarray], nnz_coefs: List[int], scores
     best_idx = np.argmax(np.unique(nnz_coefs) == best_num_features) # find index of this model in vector with feature counts for each model
 
     num_plots = np.unique(nnz_coefs)[best_idx:0:-1] # for this number of features, and each unique number below it
-    num_cols = 5
-    num_rows = round(len(num_plots)/num_cols)
-    (_, subplots) = plt.subplots(num_rows, num_cols, figsize=(5*num_rows, 3*num_cols))
+    num_rows = int(np.ceil(len(num_plots)/num_subplot_cols))
+    (_, subplots) = plt.subplots(num_rows, num_subplot_cols, figsize=(5*num_rows, 3*num_subplot_cols))
     i = j = 0
 
     for num_features in num_plots:
-        if i == num_cols:
+        if i == num_subplot_cols:
             i = 0
             j += 1
         ax = subplots[j][i]
@@ -194,3 +201,48 @@ def coef_plots_regularized(coefs: List[np.ndarray], nnz_coefs: List[int], scores
         ax.axis('tight')
         i += 1
     plt.tight_layout()
+
+def main():
+
+    from sklearn.datasets import load_breast_cancer
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.model_selection import StratifiedKFold, GridSearchCV
+    from sklearn.pipeline import Pipeline
+    from sklearn.preprocessing import StandardScaler
+
+    dat = load_breast_cancer(as_frame=True)
+    df = dat.frame
+    X = df.drop(columns='target')
+    y = df['target']
+
+    cv = StratifiedKFold(shuffle=True, random_state=40)
+    scaler = StandardScaler()
+    lr = LogisticRegression(solver='liblinear', penalty='l1')
+
+    X_sc = scaler.fit_transform(X)
+
+    # Pick optimal hyperparameter range
+    lambda_min, lambda_max = regularization_range(X,y,scaler)
+
+    Cs = np.logspace(np.log10(1/lambda_min), np.log10(1/lambda_max), 100)
+    pipe = Pipeline([
+        ('scaler', scaler),
+        ('clf', lr)
+    ])
+    params = [{
+    "clf__C": Cs
+    }]
+
+    lr_l1 = GridSearchCV(pipe, params, cv = cv, scoring = 'roc_auc', refit=choose_C)
+
+    lr_l1.fit(X,y)
+
+    # Compute and plot regularization path
+    coefs, nnz_coefs = regularization_path(Cs, lr, X_sc, y)
+    plot_regularization_path(1/Cs, coefs, nnz_coefs, lr_l1.cv_results_)
+
+    # Plot coefficients at different regularization strengths
+    coef_plots_regularized(coefs, nnz_coefs, lr_l1.cv_results_["mean_test_score"], X.columns, num_subplot_cols=3)
+
+if __name__ == '__main__':
+    main()

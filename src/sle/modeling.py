@@ -1,21 +1,28 @@
-from typing import Tuple
+""""General routines to prep data for predictive modeling, and to evaluate resulting models.
+
+    See the main() function and/or run this module as a script for a typical usage example.
+"""
+
+from typing import Tuple, List
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import  classification_report, confusion_matrix, ConfusionMatrixDisplay, roc_curve, plot_roc_curve
+from sklearn.base import clone
+from sklearn.metrics import  auc, classification_report, confusion_matrix, ConfusionMatrixDisplay, roc_curve, plot_roc_curve
 
-def prep_data(df: pd.DataFrame, target_class: str, control_class: str, drop_cols: list = []) -> Tuple[pd.DataFrame, pd.Series]:
+
+def prep_data(df: pd.DataFrame, target_class: str, control_class: str, drop_cols: list = []
+) -> Tuple[pd.DataFrame, pd.Series]:
     """Generate X and y from data frame for machine learning.
-    
+
     Args:
         df: A pandas dataframe, with a "Class" column
         target_class: a string specifying the name of the target class in the "Class" column
         control_class: a string specifying the name of the negative class in the "Class" column
         drop_cols: a list of strings with columns to drop from the returned X dataframe (other than "Class")
-    
+
     Returns:
         an (X, y) tuple where X is a dataframe with features and Y is a series of class labels (0,1)
-
     """
 
     X = df[df.Class.isin([target_class, control_class])] # restrict to two classes
@@ -26,15 +33,14 @@ def prep_data(df: pd.DataFrame, target_class: str, control_class: str, drop_cols
 
 def eval_model(model, X: pd.DataFrame, y: pd.Series, target_class: str, control_class: str, threshold: float = 0.5):
     """Prints a classification report, displays a ConfusionMatrix, and plots a ROC curve.
-    
+
     Args:
         model: a fitted sklearn model object
         X: a dataframe of features
         y: a series of class labels
         target_class: a string specifying the name of the target class
         control_class: a string specifying the name of the negative/control class in the "Class" column
-        threshold: the decision threshold (between 0 and 1; default 0.5)
-    
+        threshold: the decision threshold (between 0 and 1; default 0.5).
     """
 
     # Classification report
@@ -140,3 +146,37 @@ def plot_roc_cv(tprs: List[np.ndarray], aucs: List[np.ndarray], fig, ax, reuse: 
 
     ax.legend(loc="lower right")
     return fig, ax
+
+
+def main():
+
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.model_selection import RepeatedStratifiedKFold
+    from sklearn.datasets import load_breast_cancer
+
+    dat = load_breast_cancer(as_frame=True)
+    df = dat.frame
+    df['Class'] = df['target'].replace({0: dat.target_names[0], 1: dat.target_names[1]})
+    df.drop(columns = 'target', inplace=True)
+
+    model = LogisticRegression(solver='liblinear')
+    cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=5, random_state=40)
+
+    # Extract features and class labels
+    X,y = prep_data(df, dat.target_names[1], dat.target_names[0])
+
+    model.fit(X,y)
+
+    # Report model metrics
+    # N.B. this uses whole dataset; should be separate testing set of course
+    eval_model(model, X, y, dat.target_names[1], dat.target_names[0])
+
+    # Plot ROC curve
+    tprs, aucs = calc_roc_cv(model, cv, X, y)
+
+    fig, ax = plt.subplots()
+    plot_roc_cv(tprs, aucs, fig, ax)
+
+
+if __name__ == '__main__':
+    main()
