@@ -8,7 +8,79 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.base import clone
+from sklearn.datasets import make_classification
 from sklearn.metrics import  auc, classification_report, confusion_matrix, ConfusionMatrixDisplay, roc_curve, plot_roc_curve
+
+
+def generate_data(which: str) -> pd.DataFrame:
+    """Generate synthetic data to able to run the code in this project.
+
+    This creates a dataframe with the same shape, column names, and types of features as the real data.
+    However, the values themselves are generated from simple distributions: correlations between "features"
+    are not preserved, nor is which features are most predictive, and their values don't necessarily make sense.
+
+    Args:
+        which: str (either 'imid', or 'rest'), which determines which of two dataframes to generate:
+            'imid' generates a dataframe with classes "SLE", "BBD", "IMID", and "nonIMID" (similar to imid.feather)
+            'rest' generate a datafrae with classes "rest_large", "rest", "LLD" "preSLE" (similar to rest.feather)
+
+    Returns:
+        a dataframe that satisfies the properties described above
+    """
+
+    if which not in ['imid', 'rest']:
+        raise ValueError(f"argument must be one of ['imid','rest']; input was '{which}' instead")
+
+    total_n = {'imid': 1408,
+               'rest': 922}
+
+    num_feature_names = ['Actinin', 'ASCA', 'Beta2GP1', 'C1q', 'C3b', 'Cardiolipin', 'CCP1arg',
+       'CCP1cit', 'CENP', 'CMV', 'CollagenII', 'CpGmot', 'CRP1', 'DFS70',
+       'dsDNA2', 'Enolasearg', 'Enolasecit', 'EphB2', 'FcER', 'Fibrillarin',
+       'Ficolin', 'GAPDH', 'GBM', 'H2Bp', 'H2Bpac', 'H4p', 'H4pac', 'Histones',
+       'IFNLambda', 'IFNOmega', 'Jo1', 'Ku', 'LaSSB', 'MBL2', 'Mi2',
+       'Nucleosome', 'PCNA', 'Pentraxin3', 'PmScl100', 'RA33', 'RipP0',
+       'RipP0peptide', 'RipP1', 'RipP2', 'RNAPolIII', 'RNP70', 'RNPA', 'RNPC',
+       'Ro52', 'Ro60', 'RPP25ThTo', 'Scl70', 'SmBB', 'SMP', 'TIF1gamma', 'TPO',
+       'tTG', 'dsDNA1']
+
+    class_counts = {'imid': {
+                         'SLE':        483,
+                         'BBD':        361,
+                         'IMID':       346,
+                         'nonIMID':    218},
+                    'rest': {
+                         'rest_large': 462,
+                         'rest':       415,
+                         'LLD':         28,
+                         'preSLE':      17}
+                  }
+
+    n_symps = class_counts['imid']['SLE'] + class_counts['imid']['IMID']
+    # approximate proportion of symptom occurences in real data SLE/IMID patients
+    symptom_props = {'Arthritis': 180/n_symps,
+                     'Pleurisy': 86/n_symps,
+                     'Pericarditis': 85/n_symps,
+                     'Nefritis': 172/n_symps}
+
+    # generate numerical features
+    X,y = make_classification(n_samples=total_n[which], n_features = len(num_feature_names), n_informative=len(class_counts[which])*2,
+                              n_classes=len(class_counts[which]), weights = [c/total_n[which] for c in class_counts[which].values()],
+                              random_state=40)
+    df = pd.DataFrame(X, columns = num_feature_names)
+    df = df.abs() # force positive (as fluorescence intensity can't be negative)
+    df['Class'] = pd.Series(y).replace(list(range(len(class_counts[which]))), class_counts[which].keys()) # replace 0-3 with class labels
+
+    # add binary features
+    for s, c in symptom_props.items():
+        df[s] = np.nan
+        # assign symptoms (1 vs. 0) to SLE/IMID in proportion to real data
+        if which == 'imid':
+            df.loc[df.Class.isin(['SLE', 'IMID']), s] = np.random.binomial(1, c, df.Class.isin(['SLE', 'IMID']).sum())
+            df.loc[df.Class == 'nonIMID', s] = 0 # nonIMIDs (almost) never have these symptoms
+        elif which == 'rest':
+            df.loc[df.Class.isin(['LLD', 'preSLE']), s] = np.random.binomial(1, c, df.Class.isin(['LLD', 'preSLE']).sum())
+    return df
 
 
 def prep_data(df: pd.DataFrame, target_class: str, control_class: str, drop_cols: list = []
@@ -152,24 +224,20 @@ def main():
 
     from sklearn.linear_model import LogisticRegression
     from sklearn.model_selection import RepeatedStratifiedKFold
-    from sklearn.datasets import load_breast_cancer
 
-    dat = load_breast_cancer(as_frame=True)
-    df = dat.frame
-    df['Class'] = df['target'].replace({0: dat.target_names[0], 1: dat.target_names[1]})
-    df.drop(columns = 'target', inplace=True)
+    df = generate_data('imid')
 
     model = LogisticRegression(solver='liblinear')
     cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=5, random_state=40)
 
     # Extract features and class labels
-    X,y = prep_data(df, dat.target_names[1], dat.target_names[0])
+    X,y = prep_data(df, 'SLE', 'BBD', drop_cols = ["Arthritis","Pleurisy","Pericarditis","Nefritis"] + ["dsDNA1"])
 
     model.fit(X,y)
 
     # Report model metrics
     # N.B. this uses whole dataset; should be separate testing set of course
-    eval_model(model, X, y, dat.target_names[1], dat.target_names[0])
+    eval_model(model, X, y, 'SLE', 'BBD')
 
     # Plot ROC curve
     tprs, aucs = calc_roc_cv(model, cv, X, y)
