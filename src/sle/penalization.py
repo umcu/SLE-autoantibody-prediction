@@ -7,6 +7,7 @@ from typing import Tuple, List
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import gridspec
 from sklearn.base import clone
 
 
@@ -184,23 +185,20 @@ def coef_plots_regularized(coefs: List[np.ndarray], nnz_coefs: List[int], scores
     best_num_features = nnz_coefs[np.argmax(scores)] # number of features of model with best ROC AUC
     best_idx = np.argmax(np.unique(nnz_coefs) == best_num_features) # find index of this model in vector with feature counts for each model
 
-    num_plots = np.unique(nnz_coefs)[best_idx:0:-1] # for this number of features, and each unique number below it
-    num_rows = int(np.ceil(len(num_plots)/num_subplot_cols))
-    (_, subplots) = plt.subplots(num_rows, num_subplot_cols, figsize=(5*num_rows, 3*num_subplot_cols))
-    i = j = 0
+    features = np.unique(nnz_coefs)[best_idx:0:-1] # for this number of features, and each unique number below it
+    num_rows = int(np.ceil(len(features)/num_subplot_cols))
 
-    for num_features in num_plots:
-        if i == num_subplot_cols:
-            i = 0
-            j += 1
-        ax = subplots[j][i]
+    # subplot code from https://stackoverflow.com/a/31575923
+    gs = gridspec.GridSpec(num_rows, num_subplot_cols)
+    fig = plt.figure(figsize=(5*num_rows, 3*num_subplot_cols))
+    for n, num_features in enumerate(features):
         idx = np.argmax(nnz_coefs == num_features) # find first model that has this number of features
         df_coefs = pd.Series(coefs[idx].squeeze(), index=varnames) # get coefficients, add feature names
+        ax = fig.add_subplot(gs[n])
         df_coefs[df_coefs != 0].sort_values().plot.barh(ax=ax) # get non-zero coefficients, sort descending
         ax.set_title(f'Num features: {num_features}; AUC: {scores[idx]:.4f}')
-        ax.axis('tight')
-        i += 1
-    plt.tight_layout()
+
+    fig.tight_layout()
 
 def main():
 
