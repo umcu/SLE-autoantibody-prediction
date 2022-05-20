@@ -1,0 +1,2524 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-0.9.426">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Leon C. Reteig">
+
+<title>SLE-autoantibody-prediction - Models for discriminating SLE patients from nonIMID controls</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link id="quarto-text-highlighting-styles" href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Models for discriminating SLE patients from nonIMID controls</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../" class="sidebar-logo-link">
+      <img src="https://cdn.worldvectorlogo.com/logos/umc-utrecht-1.svg" alt="" class="sidebar-logo py-0 d-lg-inline d-none">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">SLE-autoantibody-prediction</a> 
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/preprocess.html" class="sidebar-item-text sidebar-link">Preprocessing</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/projection.html" class="sidebar-item-text sidebar-link">Dimensionality reduction / projections</a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+    <div class="sidebar-item-container"> 
+        <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Prediction</a>
+      <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+        <i class="bi bi-chevron-right ms-2"></i>
+      </a>
+    </div>
+    <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/Main Results.html" class="sidebar-item-text sidebar-link">Main Results</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/SLE Versus BBD.html" class="sidebar-item-text sidebar-link">Models for discriminating SLE patients from healthy controls (Blood Bank Donors)</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/SLE Versus nonIMID.html" class="sidebar-item-text sidebar-link active">Models for discriminating SLE patients from nonIMID controls</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/Nefritis Versus non-nefritis.html" class="sidebar-item-text sidebar-link">Predict whether an SLE patient has nefritis or not</a>
+  </div>
+</li>
+    </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#setup" id="toc-setup" class="nav-link active" data-scroll-target="#setup">Setup</a></li>
+  <li><a href="#logistic-regression-only-dsdna-from-microarray" id="toc-logistic-regression-only-dsdna-from-microarray" class="nav-link" data-scroll-target="#logistic-regression-only-dsdna-from-microarray">Logistic regression: Only dsDNA from microarray</a></li>
+  <li><a href="#logistic-regression-only-dsdna-from-clinic" id="toc-logistic-regression-only-dsdna-from-clinic" class="nav-link" data-scroll-target="#logistic-regression-only-dsdna-from-clinic">Logistic regression: Only dsDNA from clinic</a></li>
+  <li><a href="#logistic-regression-without-dsdna" id="toc-logistic-regression-without-dsdna" class="nav-link" data-scroll-target="#logistic-regression-without-dsdna">Logistic regression without dsDNA</a></li>
+  <li><a href="#logistic-regression-with-all-features" id="toc-logistic-regression-with-all-features" class="nav-link" data-scroll-target="#logistic-regression-with-all-features">Logistic regression with all features</a></li>
+  <li><a href="#penalized-logistic-regression" id="toc-penalized-logistic-regression" class="nav-link" data-scroll-target="#penalized-logistic-regression">Penalized logistic regression</a>
+  <ul class="collapse">
+  <li><a href="#ridge" id="toc-ridge" class="nav-link" data-scroll-target="#ridge">Ridge</a></li>
+  <li><a href="#lasso" id="toc-lasso" class="nav-link" data-scroll-target="#lasso">LASSO</a>
+  <ul class="collapse">
+  <li><a href="#stability" id="toc-stability" class="nav-link" data-scroll-target="#stability">Stability</a></li>
+  <li><a href="#test-on-pre-sle-vs.-rest-group" id="toc-test-on-pre-sle-vs.-rest-group" class="nav-link" data-scroll-target="#test-on-pre-sle-vs.-rest-group">Test on pre-SLE (vs.&nbsp;rest) group</a></li>
+  <li><a href="#test-on-lld-vs.-rest-2" id="toc-test-on-lld-vs.-rest-2" class="nav-link" data-scroll-target="#test-on-lld-vs.-rest-2">Test on LLD (vs.&nbsp;rest)</a></li>
+  <li><a href="#test-on-imid-vs.-blood-bank-1" id="toc-test-on-imid-vs.-blood-bank-1" class="nav-link" data-scroll-target="#test-on-imid-vs.-blood-bank-1">Test on IMID (vs.&nbsp;blood bank)</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#random-forest" id="toc-random-forest" class="nav-link" data-scroll-target="#random-forest">Random Forest</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/umcu/SLE-autoantibody-prediction/blob/main/notebooks/SLE Versus nonIMID.ipynb" class="toc-action">View source</a></p><p><a href="https://github.com/umcu/SLE-autoantibody-prediction/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Models for discriminating SLE patients from nonIMID controls</h1>
+</div>
+
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    Leon C. Reteig 
+  </div>
+    <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            University Medical Center Utrecht
+          </p>
+      </div>
+    </div>
+
+
+
+<div class="quarto-title-meta">
+
+      
+    
+  </div>
+  
+
+</header>
+
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Citation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>This notebook contains analyses for the following project:</strong></p>
+<p>Brunekreef TE, Reteig LC, Limper M, Haitjema S, Dias J, Mathsson-Alm L, van Laar JM, Otten HG. <a href="https://doi.org/10.1016/j.humimm.2022.03.010">Microarray analysis of autoantibodies can identify future Systemic Lupus Erythematosus patients</a>. Human Immunology. 2022 Apr 11. doi:10.1016/j.humimm.2022.03.010</p>
+</div>
+</div>
+<section id="setup" class="level2">
+<h2 class="anchored" data-anchor-id="setup">Setup</h2>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> feather</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.pipeline <span class="im">import</span> Pipeline</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> PowerTransformer</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> RepeatedStratifiedKFold, cross_val_score, GridSearchCV</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestClassifier</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> roc_curve, plot_roc_curve</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> stability_selection <span class="im">import</span> StabilitySelection, plot_stability_path</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> joblib <span class="im">import</span> parallel_backend</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sle.regression <span class="im">import</span> coef_from_sm, coef_plot, make_coef_tbl</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sle.modeling <span class="im">import</span> generate_data, prep_data, eval_model, calc_roc_cv, plot_roc_cv</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sle.penalization <span class="im">import</span> regularization_range, choose_C, regularization_path, plot_regularization_path, coef_plots_regularized</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext autoreload</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>autoreload <span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The autoreload extension is already loaded. To reload it, use:
+  %reload_ext autoreload</code></pre>
+</div>
+</div>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Running the code without the original data
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If you want to run the code but don’t have access to the data, run the following instead to generate some synthetic data:</p>
+</div>
+</div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data_all <span class="op">=</span> generate_data(<span class="st">'imid'</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>X_test_df <span class="op">=</span> generate_data(<span class="st">'rest'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<details>
+<summary>Code for loading original data</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>data_dir <span class="op">=</span> os.path.join(<span class="st">'..'</span>, <span class="st">'data'</span>, <span class="st">'processed'</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>data_all <span class="op">=</span> feather.read_dataframe(os.path.join(data_dir, <span class="st">'imid.feather'</span>))</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>X_test_df <span class="op">=</span> feather.read_dataframe(os.path.join(data_dir,<span class="st">'rest.feather'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>X_nonIMID, y_nonIMID <span class="op">=</span> prep_data(data_all, <span class="st">'SLE'</span>, <span class="st">'nonIMID'</span>, drop_cols <span class="op">=</span> [<span class="st">"Arthritis"</span>,<span class="st">"Pleurisy"</span>,<span class="st">"Pericarditis"</span>,<span class="st">"Nefritis"</span>])</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>dsDNA_nonIMID <span class="op">=</span> X_nonIMID.dsDNA2.values.reshape(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>) <span class="co"># only dsDNA from chip as a vector</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>dsDNA_lab_nonIMID <span class="op">=</span> X_nonIMID.dsDNA1.values.reshape(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>X_nonIMID.drop(<span class="st">"dsDNA1"</span>, axis<span class="op">=</span><span class="dv">1</span>, inplace<span class="op">=</span><span class="va">True</span>) <span class="co"># drop clinic dsDNA from multivariable data frame</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>cv <span class="op">=</span> RepeatedStratifiedKFold(n_splits<span class="op">=</span><span class="dv">5</span>, n_repeats<span class="op">=</span><span class="dv">5</span>, random_state<span class="op">=</span><span class="dv">40</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="logistic-regression-only-dsdna-from-microarray" class="level2">
+<h2 class="anchored" data-anchor-id="logistic-regression-only-dsdna-from-microarray">Logistic regression: Only dsDNA from microarray</h2>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>clf <span class="op">=</span> LogisticRegression(penalty <span class="op">=</span> <span class="st">'none'</span>, max_iter <span class="op">=</span> <span class="dv">10000</span>) <span class="co"># increase iterations for solver to converge</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>lr_dsDNA_nonIMID <span class="op">=</span> clf.fit(dsDNA_nonIMID, y_nonIMID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>np.mean(cross_val_score(clf, dsDNA_nonIMID, y_nonIMID, cv<span class="op">=</span>cv, scoring <span class="op">=</span> <span class="st">'roc_auc'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<pre><code>0.8006217102395325</code></pre>
+</div>
+</div>
+<p>Interestingly, AUC for dsDNA only is around the same value as for the vs.&nbsp;blood bank controls, though this is a much harder classification problem. So dsDNA seems to be the most relevant in this set. Also, it’s barely lower than the XGBoost model…</p>
+<div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" aria-current="page">Test on pre-SLE (vs.&nbsp;rest)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Test on LLD (vs.&nbsp;rest)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Test on IMID (vs.&nbsp;blood bank)</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>X_test, y_test <span class="op">=</span> prep_data(X_test_df, <span class="st">'preSLE'</span>, <span class="st">'rest_large'</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>eval_model(lr_dsDNA_nonIMID, X_test.dsDNA2.values.reshape(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>), y_test, <span class="st">'preSLE'</span>, <span class="st">'rest_large'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Threshold for classification: 0.5
+              precision    recall  f1-score   support
+
+  rest_large       0.99      0.34      0.51       462
+      preSLE       0.05      0.88      0.09        17
+
+    accuracy                           0.36       479
+   macro avg       0.52      0.61      0.30       479
+weighted avg       0.95      0.36      0.49       479
+
+N.B.: "recall" = sensitivity for the group in this row (e.g. preSLE); specificity for the other group (rest_large)
+N.B.: "precision" = PPV for the group in this row (e.g. preSLE); NPV for the other group (rest_large)
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-9-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-9-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>X_test, y_test <span class="op">=</span> prep_data(X_test_df, <span class="st">'LLD'</span>, <span class="st">'rest_large'</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>eval_model(lr_dsDNA_nonIMID, X_test.dsDNA2.values.reshape(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>), y_test, <span class="st">'LLD'</span>, <span class="st">'rest_large'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Threshold for classification: 0.5
+              precision    recall  f1-score   support
+
+  rest_large       0.98      0.34      0.50       462
+         LLD       0.08      0.89      0.14        28
+
+    accuracy                           0.37       490
+   macro avg       0.53      0.62      0.32       490
+weighted avg       0.93      0.37      0.48       490
+
+N.B.: "recall" = sensitivity for the group in this row (e.g. LLD); specificity for the other group (rest_large)
+N.B.: "precision" = PPV for the group in this row (e.g. LLD); NPV for the other group (rest_large)
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-10-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-10-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Both for preSLE and LLD, sensitivity is great when only using dsDNA… But specificity is pretty bad</p>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>X_test, y_test <span class="op">=</span> prep_data(data_all, <span class="st">'IMID'</span>, <span class="st">'BBD'</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>eval_model(lr_dsDNA_nonIMID, X_test.dsDNA2.values.reshape(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>), y_test, <span class="st">'IMID'</span>, <span class="st">'BBD'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Threshold for classification: 0.5
+              precision    recall  f1-score   support
+
+         BBD       0.38      0.13      0.20       361
+        IMID       0.46      0.77      0.58       346
+
+    accuracy                           0.45       707
+   macro avg       0.42      0.45      0.39       707
+weighted avg       0.42      0.45      0.38       707
+
+N.B.: "recall" = sensitivity for the group in this row (e.g. IMID); specificity for the other group (BBD)
+N.B.: "precision" = PPV for the group in this row (e.g. IMID); NPV for the other group (BBD)
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-11-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-11-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Does not do so well even on healthy controls, so this model is just very sensitive to everything it seems</p>
+</div>
+</div>
+</div>
+</section>
+<section id="logistic-regression-only-dsdna-from-clinic" class="level2">
+<h2 class="anchored" data-anchor-id="logistic-regression-only-dsdna-from-clinic">Logistic regression: Only dsDNA from clinic</h2>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>clf <span class="op">=</span> LogisticRegression(penalty <span class="op">=</span> <span class="st">'none'</span>, max_iter <span class="op">=</span> <span class="dv">10000</span>) <span class="co"># increase iterations for solver to converge</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>lr_dsDNA_lab_nonIMID <span class="op">=</span> clf.fit(dsDNA_lab_nonIMID, y_nonIMID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>np.mean(cross_val_score(clf, dsDNA_lab_nonIMID, y_nonIMID, cv<span class="op">=</span>cv, scoring <span class="op">=</span> <span class="st">'roc_auc'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="17">
+<pre><code>0.8136558728921921</code></pre>
+</div>
+</div>
+<div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">Test on pre-SLE (vs.&nbsp;rest)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false">Test on LLD (vs.&nbsp;rest)</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>X_test, y_test <span class="op">=</span> prep_data(X_test_df, <span class="st">'preSLE'</span>, <span class="st">'rest_large'</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>eval_model(lr_dsDNA_lab_nonIMID, X_test.dsDNA1.values.reshape(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>), y_test, <span class="st">'preSLE'</span>, <span class="st">'rest_large'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Threshold for classification: 0.5
+              precision    recall  f1-score   support
+
+  rest_large       0.00      0.00      0.00       462
+      preSLE       0.04      1.00      0.07        17
+
+    accuracy                           0.04       479
+   macro avg       0.02      0.50      0.03       479
+weighted avg       0.00      0.04      0.00       479
+
+N.B.: "recall" = sensitivity for the group in this row (e.g. preSLE); specificity for the other group (rest_large)
+N.B.: "precision" = PPV for the group in this row (e.g. preSLE); NPV for the other group (rest_large)
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/home/lcreteig/miniconda3/envs/SLE/lib/python3.7/site-packages/sklearn/metrics/_classification.py:1221: UndefinedMetricWarning: Precision and F-score are ill-defined and being set to 0.0 in labels with no predicted samples. Use `zero_division` parameter to control this behavior.
+  _warn_prf(average, modifier, msg_start, len(result))</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-15-output-3.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-15-output-4.png" class="img-fluid"></p>
+</div>
+</div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>X_test, y_test <span class="op">=</span> prep_data(X_test_df, <span class="st">'LLD'</span>, <span class="st">'rest_large'</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>eval_model(lr_dsDNA_lab_nonIMID, X_test.dsDNA1.values.reshape(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>), y_test, <span class="st">'LLD'</span>, <span class="st">'rest_large'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Threshold for classification: 0.5
+              precision    recall  f1-score   support
+
+  rest_large       0.00      0.00      0.00       462
+         LLD       0.06      1.00      0.11        28
+
+    accuracy                           0.06       490
+   macro avg       0.03      0.50      0.05       490
+weighted avg       0.00      0.06      0.01       490
+
+N.B.: "recall" = sensitivity for the group in this row (e.g. LLD); specificity for the other group (rest_large)
+N.B.: "precision" = PPV for the group in this row (e.g. LLD); NPV for the other group (rest_large)
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/home/lcreteig/miniconda3/envs/SLE/lib/python3.7/site-packages/sklearn/metrics/_classification.py:1221: UndefinedMetricWarning: Precision and F-score are ill-defined and being set to 0.0 in labels with no predicted samples. Use `zero_division` parameter to control this behavior.
+  _warn_prf(average, modifier, msg_start, len(result))</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-16-output-3.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-16-output-4.png" class="img-fluid"></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="logistic-regression-without-dsdna" class="level2">
+<h2 class="anchored" data-anchor-id="logistic-regression-without-dsdna">Logistic regression without dsDNA</h2>
+<div class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>no_dsDNA_nonIMID <span class="op">=</span> X_nonIMID.drop(columns<span class="op">=</span><span class="st">'dsDNA2'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>np.mean(cross_val_score(clf, no_dsDNA_nonIMID, y_nonIMID, cv<span class="op">=</span>cv, scoring <span class="op">=</span> <span class="st">'roc_auc'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="21">
+<pre><code>0.7689850124052804</code></pre>
+</div>
+</div>
+<p>A model with only dsDNA does better than one with all features but without dsDNA…</p>
+</section>
+<section id="logistic-regression-with-all-features" class="level2">
+<h2 class="anchored" data-anchor-id="logistic-regression-with-all-features">Logistic regression with all features</h2>
+<p>Scale features to get rid of the skew</p>
+<div class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>Xp1_nonIMID <span class="op">=</span> X_nonIMID <span class="op">+</span> <span class="dv">1</span> <span class="co"># Some &lt; 0 values &gt; -1. Because negative fluorescence isn't possible, and Box-Cox requires strictly positive values, add ofset</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>trf <span class="op">=</span> PowerTransformer(method<span class="op">=</span><span class="st">'box-cox'</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>pipe_trf <span class="op">=</span> Pipeline([</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>        (<span class="st">'transform'</span>, trf),</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>        (<span class="st">'clf'</span>, clf)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>np.mean(cross_val_score(pipe_trf, Xp1_nonIMID, y_nonIMID, cv<span class="op">=</span>cv, scoring <span class="op">=</span> <span class="st">'roc_auc'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="24">
+<pre><code>0.8337294463757692</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>X_trf_nonIMID <span class="op">=</span> pd.DataFrame(trf.fit_transform(Xp1_nonIMID), index<span class="op">=</span>X_nonIMID.index, columns<span class="op">=</span>X_nonIMID.columns)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>logreg_trf_nonIMID <span class="op">=</span> sm.Logit(y_nonIMID,sm.add_constant(X_trf_nonIMID)).fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Optimization terminated successfully.
+         Current function value: 0.370490
+         Iterations 8</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="35">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>logreg_trf_nonIMID.summary().tables[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="35">
+
+<table class="simpletable">
+<caption>Logit Regression Results</caption>
+<tbody><tr>
+  <th>Dep. Variable:</th>         <td>Class</td>      <th>  No. Observations:  </th>  <td>   701</td>  
+</tr>
+<tr>
+  <th>Model:</th>                 <td>Logit</td>      <th>  Df Residuals:      </th>  <td>   643</td>  
+</tr>
+<tr>
+  <th>Method:</th>                 <td>MLE</td>       <th>  Df Model:          </th>  <td>    57</td>  
+</tr>
+<tr>
+  <th>Date:</th>            <td>Fri, 20 May 2022</td> <th>  Pseudo R-squ.:     </th>  <td>0.4023</td>  
+</tr>
+<tr>
+  <th>Time:</th>                <td>09:41:39</td>     <th>  Log-Likelihood:    </th> <td> -259.71</td> 
+</tr>
+<tr>
+  <th>converged:</th>             <td>True</td>       <th>  LL-Null:           </th> <td> -434.54</td> 
+</tr>
+<tr>
+  <th>Covariance Type:</th>     <td>nonrobust</td>    <th>  LLR p-value:       </th> <td>1.150e-43</td>
+</tr>
+</tbody></table>
+</div>
+</div>
+<div class="cell" data-execution_count="42">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>pd.read_html(logreg_trf_nonIMID.summary().tables[<span class="dv">1</span>].as_html(), header<span class="op">=</span><span class="dv">0</span>, index_col<span class="op">=</span><span class="dv">0</span>)[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="42">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>coef</th>
+      <th>std err</th>
+      <th>z</th>
+      <th>P&gt;|z|</th>
+      <th>[0.025</th>
+      <th>0.975]</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>const</th>
+      <td>1.7953</td>
+      <td>0.176</td>
+      <td>10.213</td>
+      <td>0.000</td>
+      <td>1.451</td>
+      <td>2.140</td>
+    </tr>
+    <tr>
+      <th>Actinin</th>
+      <td>-0.0771</td>
+      <td>0.149</td>
+      <td>-0.518</td>
+      <td>0.604</td>
+      <td>-0.369</td>
+      <td>0.214</td>
+    </tr>
+    <tr>
+      <th>ASCA</th>
+      <td>-0.2462</td>
+      <td>0.140</td>
+      <td>-1.763</td>
+      <td>0.078</td>
+      <td>-0.520</td>
+      <td>0.027</td>
+    </tr>
+    <tr>
+      <th>Beta2GP1</th>
+      <td>-0.2659</td>
+      <td>0.129</td>
+      <td>-2.057</td>
+      <td>0.040</td>
+      <td>-0.519</td>
+      <td>-0.013</td>
+    </tr>
+    <tr>
+      <th>C1q</th>
+      <td>-0.0068</td>
+      <td>0.152</td>
+      <td>-0.045</td>
+      <td>0.964</td>
+      <td>-0.305</td>
+      <td>0.291</td>
+    </tr>
+    <tr>
+      <th>C3b</th>
+      <td>0.1107</td>
+      <td>0.183</td>
+      <td>0.605</td>
+      <td>0.545</td>
+      <td>-0.248</td>
+      <td>0.469</td>
+    </tr>
+    <tr>
+      <th>Cardiolipin</th>
+      <td>-0.1269</td>
+      <td>0.134</td>
+      <td>-0.949</td>
+      <td>0.343</td>
+      <td>-0.389</td>
+      <td>0.135</td>
+    </tr>
+    <tr>
+      <th>CCP1arg</th>
+      <td>-0.0193</td>
+      <td>0.176</td>
+      <td>-0.110</td>
+      <td>0.912</td>
+      <td>-0.363</td>
+      <td>0.325</td>
+    </tr>
+    <tr>
+      <th>CCP1cit</th>
+      <td>0.4228</td>
+      <td>0.206</td>
+      <td>2.049</td>
+      <td>0.040</td>
+      <td>0.018</td>
+      <td>0.827</td>
+    </tr>
+    <tr>
+      <th>CENP</th>
+      <td>-0.1206</td>
+      <td>0.134</td>
+      <td>-0.903</td>
+      <td>0.367</td>
+      <td>-0.382</td>
+      <td>0.141</td>
+    </tr>
+    <tr>
+      <th>CMV</th>
+      <td>0.0332</td>
+      <td>0.141</td>
+      <td>0.236</td>
+      <td>0.813</td>
+      <td>-0.243</td>
+      <td>0.309</td>
+    </tr>
+    <tr>
+      <th>CollagenII</th>
+      <td>0.1021</td>
+      <td>0.165</td>
+      <td>0.620</td>
+      <td>0.535</td>
+      <td>-0.221</td>
+      <td>0.425</td>
+    </tr>
+    <tr>
+      <th>CpGmot</th>
+      <td>0.6923</td>
+      <td>0.252</td>
+      <td>2.751</td>
+      <td>0.006</td>
+      <td>0.199</td>
+      <td>1.185</td>
+    </tr>
+    <tr>
+      <th>CRP1</th>
+      <td>0.1281</td>
+      <td>0.175</td>
+      <td>0.732</td>
+      <td>0.464</td>
+      <td>-0.215</td>
+      <td>0.471</td>
+    </tr>
+    <tr>
+      <th>DFS70</th>
+      <td>-0.0569</td>
+      <td>0.137</td>
+      <td>-0.416</td>
+      <td>0.677</td>
+      <td>-0.325</td>
+      <td>0.211</td>
+    </tr>
+    <tr>
+      <th>dsDNA2</th>
+      <td>1.4226</td>
+      <td>0.226</td>
+      <td>6.284</td>
+      <td>0.000</td>
+      <td>0.979</td>
+      <td>1.866</td>
+    </tr>
+    <tr>
+      <th>Enolasearg</th>
+      <td>-0.2186</td>
+      <td>0.176</td>
+      <td>-1.238</td>
+      <td>0.216</td>
+      <td>-0.565</td>
+      <td>0.127</td>
+    </tr>
+    <tr>
+      <th>Enolasecit</th>
+      <td>-0.2687</td>
+      <td>0.200</td>
+      <td>-1.344</td>
+      <td>0.179</td>
+      <td>-0.661</td>
+      <td>0.123</td>
+    </tr>
+    <tr>
+      <th>EphB2</th>
+      <td>-0.5244</td>
+      <td>0.187</td>
+      <td>-2.806</td>
+      <td>0.005</td>
+      <td>-0.891</td>
+      <td>-0.158</td>
+    </tr>
+    <tr>
+      <th>FcER</th>
+      <td>-0.4159</td>
+      <td>0.143</td>
+      <td>-2.900</td>
+      <td>0.004</td>
+      <td>-0.697</td>
+      <td>-0.135</td>
+    </tr>
+    <tr>
+      <th>Fibrillarin</th>
+      <td>-0.2297</td>
+      <td>0.142</td>
+      <td>-1.619</td>
+      <td>0.105</td>
+      <td>-0.508</td>
+      <td>0.048</td>
+    </tr>
+    <tr>
+      <th>Ficolin</th>
+      <td>-0.0528</td>
+      <td>0.164</td>
+      <td>-0.323</td>
+      <td>0.747</td>
+      <td>-0.373</td>
+      <td>0.268</td>
+    </tr>
+    <tr>
+      <th>GAPDH</th>
+      <td>-0.2759</td>
+      <td>0.161</td>
+      <td>-1.710</td>
+      <td>0.087</td>
+      <td>-0.592</td>
+      <td>0.040</td>
+    </tr>
+    <tr>
+      <th>GBM</th>
+      <td>-0.2263</td>
+      <td>0.147</td>
+      <td>-1.540</td>
+      <td>0.123</td>
+      <td>-0.514</td>
+      <td>0.062</td>
+    </tr>
+    <tr>
+      <th>H2Bp</th>
+      <td>0.3658</td>
+      <td>0.206</td>
+      <td>1.774</td>
+      <td>0.076</td>
+      <td>-0.038</td>
+      <td>0.770</td>
+    </tr>
+    <tr>
+      <th>H2Bpac</th>
+      <td>-0.3061</td>
+      <td>0.211</td>
+      <td>-1.454</td>
+      <td>0.146</td>
+      <td>-0.719</td>
+      <td>0.107</td>
+    </tr>
+    <tr>
+      <th>H4p</th>
+      <td>-0.2371</td>
+      <td>0.167</td>
+      <td>-1.424</td>
+      <td>0.155</td>
+      <td>-0.564</td>
+      <td>0.089</td>
+    </tr>
+    <tr>
+      <th>H4pac</th>
+      <td>0.3143</td>
+      <td>0.169</td>
+      <td>1.854</td>
+      <td>0.064</td>
+      <td>-0.018</td>
+      <td>0.646</td>
+    </tr>
+    <tr>
+      <th>Histones</th>
+      <td>0.5177</td>
+      <td>0.196</td>
+      <td>2.635</td>
+      <td>0.008</td>
+      <td>0.133</td>
+      <td>0.903</td>
+    </tr>
+    <tr>
+      <th>IFNLambda</th>
+      <td>-0.1335</td>
+      <td>0.143</td>
+      <td>-0.935</td>
+      <td>0.350</td>
+      <td>-0.413</td>
+      <td>0.146</td>
+    </tr>
+    <tr>
+      <th>IFNOmega</th>
+      <td>-0.1391</td>
+      <td>0.137</td>
+      <td>-1.018</td>
+      <td>0.308</td>
+      <td>-0.407</td>
+      <td>0.129</td>
+    </tr>
+    <tr>
+      <th>Jo1</th>
+      <td>-0.1020</td>
+      <td>0.145</td>
+      <td>-0.705</td>
+      <td>0.481</td>
+      <td>-0.385</td>
+      <td>0.181</td>
+    </tr>
+    <tr>
+      <th>Ku</th>
+      <td>0.0382</td>
+      <td>0.150</td>
+      <td>0.255</td>
+      <td>0.799</td>
+      <td>-0.255</td>
+      <td>0.331</td>
+    </tr>
+    <tr>
+      <th>LaSSB</th>
+      <td>0.1743</td>
+      <td>0.173</td>
+      <td>1.009</td>
+      <td>0.313</td>
+      <td>-0.164</td>
+      <td>0.513</td>
+    </tr>
+    <tr>
+      <th>MBL2</th>
+      <td>0.1371</td>
+      <td>0.144</td>
+      <td>0.954</td>
+      <td>0.340</td>
+      <td>-0.145</td>
+      <td>0.419</td>
+    </tr>
+    <tr>
+      <th>Mi2</th>
+      <td>-0.3063</td>
+      <td>0.149</td>
+      <td>-2.050</td>
+      <td>0.040</td>
+      <td>-0.599</td>
+      <td>-0.014</td>
+    </tr>
+    <tr>
+      <th>Nucleosome</th>
+      <td>0.0451</td>
+      <td>0.221</td>
+      <td>0.204</td>
+      <td>0.838</td>
+      <td>-0.387</td>
+      <td>0.477</td>
+    </tr>
+    <tr>
+      <th>PCNA</th>
+      <td>0.0621</td>
+      <td>0.171</td>
+      <td>0.363</td>
+      <td>0.716</td>
+      <td>-0.273</td>
+      <td>0.397</td>
+    </tr>
+    <tr>
+      <th>Pentraxin3</th>
+      <td>0.3440</td>
+      <td>0.173</td>
+      <td>1.985</td>
+      <td>0.047</td>
+      <td>0.004</td>
+      <td>0.684</td>
+    </tr>
+    <tr>
+      <th>PmScl100</th>
+      <td>0.0535</td>
+      <td>0.132</td>
+      <td>0.405</td>
+      <td>0.686</td>
+      <td>-0.205</td>
+      <td>0.312</td>
+    </tr>
+    <tr>
+      <th>RA33</th>
+      <td>-0.1740</td>
+      <td>0.156</td>
+      <td>-1.115</td>
+      <td>0.265</td>
+      <td>-0.480</td>
+      <td>0.132</td>
+    </tr>
+    <tr>
+      <th>RipP0</th>
+      <td>0.5214</td>
+      <td>0.225</td>
+      <td>2.321</td>
+      <td>0.020</td>
+      <td>0.081</td>
+      <td>0.962</td>
+    </tr>
+    <tr>
+      <th>RipP0peptide</th>
+      <td>0.0165</td>
+      <td>0.172</td>
+      <td>0.096</td>
+      <td>0.923</td>
+      <td>-0.320</td>
+      <td>0.353</td>
+    </tr>
+    <tr>
+      <th>RipP1</th>
+      <td>0.1549</td>
+      <td>0.193</td>
+      <td>0.802</td>
+      <td>0.423</td>
+      <td>-0.224</td>
+      <td>0.533</td>
+    </tr>
+    <tr>
+      <th>RipP2</th>
+      <td>-0.0690</td>
+      <td>0.219</td>
+      <td>-0.315</td>
+      <td>0.753</td>
+      <td>-0.498</td>
+      <td>0.360</td>
+    </tr>
+    <tr>
+      <th>RNAPolIII</th>
+      <td>-0.0646</td>
+      <td>0.141</td>
+      <td>-0.459</td>
+      <td>0.646</td>
+      <td>-0.341</td>
+      <td>0.211</td>
+    </tr>
+    <tr>
+      <th>RNP70</th>
+      <td>-0.5786</td>
+      <td>0.170</td>
+      <td>-3.394</td>
+      <td>0.001</td>
+      <td>-0.913</td>
+      <td>-0.244</td>
+    </tr>
+    <tr>
+      <th>RNPA</th>
+      <td>0.1027</td>
+      <td>0.153</td>
+      <td>0.671</td>
+      <td>0.502</td>
+      <td>-0.198</td>
+      <td>0.403</td>
+    </tr>
+    <tr>
+      <th>RNPC</th>
+      <td>0.0975</td>
+      <td>0.149</td>
+      <td>0.654</td>
+      <td>0.513</td>
+      <td>-0.195</td>
+      <td>0.390</td>
+    </tr>
+    <tr>
+      <th>Ro52</th>
+      <td>-0.4573</td>
+      <td>0.218</td>
+      <td>-2.099</td>
+      <td>0.036</td>
+      <td>-0.884</td>
+      <td>-0.030</td>
+    </tr>
+    <tr>
+      <th>Ro60</th>
+      <td>0.4102</td>
+      <td>0.233</td>
+      <td>1.760</td>
+      <td>0.078</td>
+      <td>-0.047</td>
+      <td>0.867</td>
+    </tr>
+    <tr>
+      <th>RPP25ThTo</th>
+      <td>-0.2874</td>
+      <td>0.148</td>
+      <td>-1.941</td>
+      <td>0.052</td>
+      <td>-0.578</td>
+      <td>0.003</td>
+    </tr>
+    <tr>
+      <th>Scl70</th>
+      <td>-0.0538</td>
+      <td>0.145</td>
+      <td>-0.371</td>
+      <td>0.711</td>
+      <td>-0.338</td>
+      <td>0.231</td>
+    </tr>
+    <tr>
+      <th>SmBB</th>
+      <td>0.9490</td>
+      <td>0.203</td>
+      <td>4.682</td>
+      <td>0.000</td>
+      <td>0.552</td>
+      <td>1.346</td>
+    </tr>
+    <tr>
+      <th>SMP</th>
+      <td>-0.4842</td>
+      <td>0.189</td>
+      <td>-2.564</td>
+      <td>0.010</td>
+      <td>-0.854</td>
+      <td>-0.114</td>
+    </tr>
+    <tr>
+      <th>TIF1gamma</th>
+      <td>0.0212</td>
+      <td>0.145</td>
+      <td>0.147</td>
+      <td>0.883</td>
+      <td>-0.262</td>
+      <td>0.305</td>
+    </tr>
+    <tr>
+      <th>TPO</th>
+      <td>-0.2068</td>
+      <td>0.129</td>
+      <td>-1.607</td>
+      <td>0.108</td>
+      <td>-0.459</td>
+      <td>0.045</td>
+    </tr>
+    <tr>
+      <th>tTG</th>
+      <td>0.3488</td>
+      <td>0.131</td>
+      <td>2.669</td>
+      <td>0.008</td>
+      <td>0.093</td>
+      <td>0.605</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>coefs_trf_nonIMID <span class="op">=</span> coef_from_sm(logreg_trf_nonIMID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>coef_plot(coefs_trf_nonIMID, OR<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-27-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>In contrast to blood bank controls, there’s no quasi-complete separation in this model. CIs are wider and less predictors are significant. dsDNA and anti-Smith lead, which is to be expected. CpGmot also significant here. Ro60 quite a bit lower in the rank, and anti-correlated to Ro52…</p>
+</section>
+<section id="penalized-logistic-regression" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="penalized-logistic-regression">Penalized logistic regression</h2>
+<section id="ridge" class="level3">
+<h3 class="anchored" data-anchor-id="ridge">Ridge</h3>
+<div class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>clf_ridge <span class="op">=</span> LogisticRegression(penalty<span class="op">=</span><span class="st">'l2'</span>, max_iter <span class="op">=</span> <span class="dv">10000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>K <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>lambda_min, lambda_max <span class="op">=</span> regularization_range(Xp1_nonIMID,y_nonIMID,trf,alpha<span class="op">=</span><span class="fl">1e-2</span>, epsilon<span class="op">=</span><span class="fl">1e-6</span>)</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>Cs_ridge_nonIMID <span class="op">=</span> np.logspace(np.log10(<span class="dv">1</span><span class="op">/</span>lambda_min), np.log10(<span class="dv">1</span><span class="op">/</span>lambda_max), K) <span class="co"># C is inverse of lambda</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>pipe <span class="op">=</span> Pipeline([</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>        (<span class="st">'trf'</span>, trf),</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>        (<span class="st">'clf'</span>, clf_ridge)</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> [{</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"clf__C"</span>: Cs_ridge_nonIMID</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>}]</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>ridge_nonIMID <span class="op">=</span> GridSearchCV(pipe, params, cv <span class="op">=</span> cv, scoring <span class="op">=</span> <span class="st">'roc_auc'</span>, refit<span class="op">=</span>choose_C)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>time</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>ridge_nonIMID.fit(Xp1_nonIMID,y_nonIMID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>CPU times: user 8min 37s, sys: 11min 49s, total: 20min 27s
+Wall time: 6min 28s</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="28">
+<pre><code>GridSearchCV(cv=RepeatedStratifiedKFold(n_repeats=5, n_splits=5, random_state=40),
+             estimator=Pipeline(steps=[('trf',
+                                        PowerTransformer(method='box-cox')),
+                                       ('clf',
+                                        LogisticRegression(max_iter=10000))]),
+             param_grid=[{'clf__C': array([6.52012573e+01, 5.67087285e+01, 4.93223600e+01, 4.28980735e+01,
+       3.73105566e+01, 3.24508194e+01, 2.82240678e+01, 2.45478548e+01,
+       2.13504...
+       9.24210976e-04, 8.03831574e-04, 6.99131710e-04, 6.08069108e-04,
+       5.28867500e-04, 4.59981980e-04, 4.00068869e-04, 3.47959500e-04,
+       3.02637428e-04, 2.63218601e-04, 2.28934116e-04, 1.99115219e-04,
+       1.73180263e-04, 1.50623361e-04, 1.31004518e-04, 1.13941049e-04,
+       9.91001136e-05, 8.61922249e-05, 7.49656017e-05, 6.52012573e-05])}],
+             refit=&lt;function choose_C at 0x7f7c2b3249e0&gt;, scoring='roc_auc')</code></pre>
+</div>
+</div>
+<p>Best model:</p>
+<div class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>ridge_nonIMID.cv_results_[<span class="st">'mean_test_score'</span>].<span class="bu">max</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="29">
+<pre><code>0.8381251384923316</code></pre>
+</div>
+</div>
+<p>Score with lambda selected through 1 SE rule:</p>
+<div class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>ridge_nonIMID.cv_results_[<span class="st">'mean_test_score'</span>][ridge_nonIMID.best_index_]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="30">
+<pre><code>0.8333156017741549</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>coefs_ridge_nonIMID, nnz_coefs_ridge_nonIMID <span class="op">=</span> regularization_path(Cs_ridge_nonIMID, clf_ridge, X_trf_nonIMID, y_nonIMID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>plot_regularization_path(<span class="dv">1</span><span class="op">/</span>Cs_ridge_nonIMID, coefs_ridge_nonIMID, nnz_coefs_ridge_nonIMID, ridge_nonIMID.cv_results_)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="32">
+<pre><code>(&lt;matplotlib.axes._subplots.AxesSubplot at 0x7f7c207dc690&gt;,
+ &lt;matplotlib.axes._subplots.AxesSubplot at 0x7f7c2292dc10&gt;,
+ &lt;matplotlib.axes._subplots.AxesSubplot at 0x7f7c20789610&gt;)</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-34-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="lasso" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="lasso">LASSO</h3>
+<div class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>clf_lasso <span class="op">=</span> LogisticRegression(penalty<span class="op">=</span><span class="st">'l1'</span>, max_iter <span class="op">=</span> <span class="dv">10000</span>, solver <span class="op">=</span> <span class="st">'liblinear'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>K <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>lambda_min, lambda_max <span class="op">=</span> regularization_range(Xp1_nonIMID,y_nonIMID,trf)</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>Cs_lasso_nonIMID <span class="op">=</span> np.logspace(np.log10(<span class="dv">1</span><span class="op">/</span>lambda_min),np.log10(<span class="dv">1</span><span class="op">/</span>lambda_max), K)</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>pipe <span class="op">=</span> Pipeline([</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>        (<span class="st">'trf'</span>, trf),</span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>        (<span class="st">'clf'</span>, clf_lasso)</span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> [{</span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"clf__C"</span>: Cs_lasso_nonIMID</span>
+<span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a>}]</span>
+<span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-12"><a href="#cb54-12" aria-hidden="true" tabindex="-1"></a>lasso_nonIMID <span class="op">=</span> GridSearchCV(pipe, params, cv <span class="op">=</span> cv, scoring <span class="op">=</span> <span class="st">'roc_auc'</span>, refit<span class="op">=</span>choose_C)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="35">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>time</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>lasso_nonIMID.fit(Xp1_nonIMID,y_nonIMID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>CPU times: user 4min 47s, sys: 0 ns, total: 4min 47s
+Wall time: 4min 47s</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="35">
+<pre><code>GridSearchCV(cv=RepeatedStratifiedKFold(n_repeats=5, n_splits=5, random_state=40),
+             estimator=Pipeline(steps=[('trf',
+                                        PowerTransformer(method='box-cox')),
+                                       ('clf',
+                                        LogisticRegression(max_iter=10000,
+                                                           penalty='l1',
+                                                           solver='liblinear'))]),
+             param_grid=[{'clf__C': array([6.52012573, 6.08069108, 5.67087285, 5.288675  , 4.932236  ,
+       4.5998198 , 4.28980735, 4.00068869, 3.73105566, 3...
+       0.04932236, 0.0459982 , 0.04289807, 0.04000689, 0.03731056,
+       0.03479595, 0.03245082, 0.03026374, 0.02822407, 0.02632186,
+       0.02454785, 0.02289341, 0.02135047, 0.01991152, 0.01856955,
+       0.01731803, 0.01615085, 0.01506234, 0.01404719, 0.01310045,
+       0.01221753, 0.0113941 , 0.01062618, 0.00991001, 0.00924211,
+       0.00861922, 0.00803832, 0.00749656, 0.00699132, 0.00652013])}],
+             refit=&lt;function choose_C at 0x7f7c2b3249e0&gt;, scoring='roc_auc')</code></pre>
+</div>
+</div>
+<p>Best model:</p>
+<div class="cell" data-execution_count="36">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>lasso_nonIMID.cv_results_[<span class="st">'mean_test_score'</span>].<span class="bu">max</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="36">
+<pre><code>0.8373836641710802</code></pre>
+</div>
+</div>
+<p>Score with lambda selected through 1 SE rule:</p>
+<div class="cell" data-execution_count="37">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>lasso_nonIMID.cv_results_[<span class="st">'mean_test_score'</span>][lasso_nonIMID.best_index_]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="37">
+<pre><code>0.833423534978168</code></pre>
+</div>
+</div>
+<p>Here LASSO is no longer better than Ridge</p>
+<div class="cell" data-execution_count="38">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>coefs_lasso_nonIMID, nnz_coefs_lasso_nonIMID <span class="op">=</span> regularization_path(Cs_lasso_nonIMID, clf_lasso, X_trf_nonIMID, y_nonIMID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="39">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>ax1, ax2, ax22 <span class="op">=</span> plot_regularization_path(<span class="dv">1</span><span class="op">/</span>Cs_lasso_nonIMID, coefs_lasso_nonIMID, nnz_coefs_lasso_nonIMID, lasso_nonIMID.cv_results_)</span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a><span class="co">#ax22.set_ylim([0.8, 1])</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-41-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>So best performance retains almost all features, but performance only drops less than .05 AUC with dramatically less features</p>
+<div class="cell page-columns page-full" data-scrolled="true" data-execution_count="40">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>coef_plots_regularized(coefs_lasso_nonIMID, nnz_coefs_lasso_nonIMID, lasso_nonIMID.cv_results_[<span class="st">"mean_test_score"</span>], varnames<span class="op">=</span>X_nonIMID.columns, num_subplot_cols<span class="op">=</span><span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display column-screen-inset-shaded">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-42-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>So again, dsDNA is really the dominant feature here. But, to maximize performance, it might be best to regularize until about half of the original features are included, as performance starts to decline monotonically from that point forwards</p>
+<div class="cell" data-execution_count="41">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> sns.plotting_context(<span class="st">"paper"</span>):</span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>    plt.rcParams[<span class="st">"font.family"</span>] <span class="op">=</span> <span class="st">"Arial"</span></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>    plt.rcParams[<span class="st">'pdf.fonttype'</span>] <span class="op">=</span> <span class="dv">42</span> <span class="co"># this causes the pdf to be editable, but it also embeds the font, significantly increasing the size</span></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">4.5</span>, <span class="fl">4.5</span>))</span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>    tprs, aucs <span class="op">=</span> calc_roc_cv(lasso_nonIMID.best_estimator_,cv,Xp1_nonIMID,y_nonIMID)</span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plot_roc_cv(tprs, aucs, fig, ax, fig_title<span class="op">=</span><span class="st">'SLE vs. non-IMID'</span>, line_color<span class="op">=</span><span class="st">'#E69F00'</span>, legend_label<span class="op">=</span><span class="st">'LASSO'</span>)</span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a>    tprs, aucs <span class="op">=</span> calc_roc_cv(lr_dsDNA_nonIMID,cv,dsDNA_nonIMID,y_nonIMID)</span>
+<span id="cb65-8"><a href="#cb65-8" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plot_roc_cv(tprs, aucs, fig, ax, reuse<span class="op">=</span><span class="va">True</span>, line_color<span class="op">=</span><span class="st">'gray'</span>, legend_label<span class="op">=</span><span class="st">'dsDNA (from chip) only'</span>)</span>
+<span id="cb65-9"><a href="#cb65-9" aria-hidden="true" tabindex="-1"></a>    tprs, aucs <span class="op">=</span> calc_roc_cv(lr_dsDNA_lab_nonIMID,cv,dsDNA_lab_nonIMID,y_nonIMID)</span>
+<span id="cb65-10"><a href="#cb65-10" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plot_roc_cv(tprs, aucs, fig, ax, reuse<span class="op">=</span><span class="va">True</span>, line_color<span class="op">=</span><span class="st">'black'</span>, legend_label<span class="op">=</span><span class="st">'dsDNA (from clinic) only'</span>)</span>
+<span id="cb65-11"><a href="#cb65-11" aria-hidden="true" tabindex="-1"></a>    sns.despine(fig<span class="op">=</span>fig,ax<span class="op">=</span>ax, trim<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb65-12"><a href="#cb65-12" aria-hidden="true" tabindex="-1"></a>    plt.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb65-13"><a href="#cb65-13" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb65-14"><a href="#cb65-14" aria-hidden="true" tabindex="-1"></a>    fig.savefig(<span class="st">'roc_SLE_nonIMID.png'</span>, bbox_inches<span class="op">=</span><span class="st">'tight'</span>, dpi<span class="op">=</span><span class="dv">300</span>, transparent<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb65-15"><a href="#cb65-15" aria-hidden="true" tabindex="-1"></a>    fig.savefig(<span class="st">'roc_SLE_nonIMID.pdf'</span>, bbox_inches<span class="op">=</span><span class="st">'tight'</span>, transparent<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-43-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Non-zero coefficients of the model selected with the 1SE rule:</p>
+<div class="cell" data-execution_count="42">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>coefs_final_nonimid <span class="op">=</span> (pd.Series(lasso_nonIMID.best_estimator_.named_steps.clf.coef_.squeeze(), </span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>                                 index <span class="op">=</span> X_nonIMID.columns)[<span class="kw">lambda</span> x: x<span class="op">!=</span><span class="dv">0</span>].sort_values())</span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>coefs_final_nonimid</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="42">
+<pre><code>GBM           -0.164424
+EphB2         -0.141745
+Beta2GP1      -0.135576
+Fibrillarin   -0.127466
+FcER          -0.117419
+RNP70         -0.114466
+Enolasearg    -0.112280
+ASCA          -0.084297
+TPO           -0.079599
+RPP25ThTo     -0.076756
+Jo1           -0.063222
+CENP          -0.055635
+IFNOmega      -0.052297
+IFNLambda     -0.043295
+Enolasecit    -0.042869
+Mi2           -0.033627
+GAPDH         -0.023148
+Actinin       -0.013356
+SMP           -0.007426
+C3b            0.009626
+LaSSB          0.025109
+RipP1          0.037874
+Ro60           0.071421
+tTG            0.089406
+RipP0          0.097295
+CpGmot         0.215477
+Histones       0.336896
+SmBB           0.479428
+dsDNA2         0.958141
+dtype: float64</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="43">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(coefs_final_nonimid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="43">
+<pre><code>29</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="44">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>make_coef_tbl(logreg_trf_nonIMID, lasso_nonIMID.best_estimator_.named_steps.clf, X_nonIMID.columns)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="44">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>coef_regularized</th>
+      <th>coef</th>
+      <th>std err</th>
+      <th>95%CI</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>const</th>
+      <td>1.101</td>
+      <td>1.795</td>
+      <td>0.176</td>
+      <td>1.451, 2.14</td>
+    </tr>
+    <tr>
+      <th>Actinin</th>
+      <td>-0.013</td>
+      <td>-0.077</td>
+      <td>0.149</td>
+      <td>-0.369, 0.214</td>
+    </tr>
+    <tr>
+      <th>ASCA</th>
+      <td>-0.084</td>
+      <td>-0.246</td>
+      <td>0.140</td>
+      <td>-0.52, 0.027</td>
+    </tr>
+    <tr>
+      <th>Beta2GP1</th>
+      <td>-0.136</td>
+      <td>-0.266</td>
+      <td>0.129</td>
+      <td>-0.519, -0.013</td>
+    </tr>
+    <tr>
+      <th>C1q</th>
+      <td>0.000</td>
+      <td>-0.007</td>
+      <td>0.152</td>
+      <td>-0.305, 0.291</td>
+    </tr>
+    <tr>
+      <th>C3b</th>
+      <td>0.010</td>
+      <td>0.111</td>
+      <td>0.183</td>
+      <td>-0.248, 0.469</td>
+    </tr>
+    <tr>
+      <th>Cardiolipin</th>
+      <td>0.000</td>
+      <td>-0.127</td>
+      <td>0.134</td>
+      <td>-0.389, 0.135</td>
+    </tr>
+    <tr>
+      <th>CCP1arg</th>
+      <td>0.000</td>
+      <td>-0.019</td>
+      <td>0.176</td>
+      <td>-0.363, 0.325</td>
+    </tr>
+    <tr>
+      <th>CCP1cit</th>
+      <td>0.000</td>
+      <td>0.423</td>
+      <td>0.206</td>
+      <td>0.018, 0.827</td>
+    </tr>
+    <tr>
+      <th>CENP</th>
+      <td>-0.056</td>
+      <td>-0.121</td>
+      <td>0.134</td>
+      <td>-0.382, 0.141</td>
+    </tr>
+    <tr>
+      <th>CMV</th>
+      <td>0.000</td>
+      <td>0.033</td>
+      <td>0.141</td>
+      <td>-0.243, 0.309</td>
+    </tr>
+    <tr>
+      <th>CollagenII</th>
+      <td>0.000</td>
+      <td>0.102</td>
+      <td>0.165</td>
+      <td>-0.221, 0.425</td>
+    </tr>
+    <tr>
+      <th>CpGmot</th>
+      <td>0.215</td>
+      <td>0.692</td>
+      <td>0.252</td>
+      <td>0.199, 1.185</td>
+    </tr>
+    <tr>
+      <th>CRP1</th>
+      <td>0.000</td>
+      <td>0.128</td>
+      <td>0.175</td>
+      <td>-0.215, 0.471</td>
+    </tr>
+    <tr>
+      <th>DFS70</th>
+      <td>0.000</td>
+      <td>-0.057</td>
+      <td>0.137</td>
+      <td>-0.325, 0.211</td>
+    </tr>
+    <tr>
+      <th>dsDNA2</th>
+      <td>0.958</td>
+      <td>1.423</td>
+      <td>0.226</td>
+      <td>0.979, 1.866</td>
+    </tr>
+    <tr>
+      <th>Enolasearg</th>
+      <td>-0.112</td>
+      <td>-0.219</td>
+      <td>0.176</td>
+      <td>-0.565, 0.127</td>
+    </tr>
+    <tr>
+      <th>Enolasecit</th>
+      <td>-0.043</td>
+      <td>-0.269</td>
+      <td>0.200</td>
+      <td>-0.661, 0.123</td>
+    </tr>
+    <tr>
+      <th>EphB2</th>
+      <td>-0.142</td>
+      <td>-0.524</td>
+      <td>0.187</td>
+      <td>-0.891, -0.158</td>
+    </tr>
+    <tr>
+      <th>FcER</th>
+      <td>-0.117</td>
+      <td>-0.416</td>
+      <td>0.143</td>
+      <td>-0.697, -0.135</td>
+    </tr>
+    <tr>
+      <th>Fibrillarin</th>
+      <td>-0.127</td>
+      <td>-0.230</td>
+      <td>0.142</td>
+      <td>-0.508, 0.048</td>
+    </tr>
+    <tr>
+      <th>Ficolin</th>
+      <td>0.000</td>
+      <td>-0.053</td>
+      <td>0.164</td>
+      <td>-0.373, 0.268</td>
+    </tr>
+    <tr>
+      <th>GAPDH</th>
+      <td>-0.023</td>
+      <td>-0.276</td>
+      <td>0.161</td>
+      <td>-0.592, 0.04</td>
+    </tr>
+    <tr>
+      <th>GBM</th>
+      <td>-0.164</td>
+      <td>-0.226</td>
+      <td>0.147</td>
+      <td>-0.514, 0.062</td>
+    </tr>
+    <tr>
+      <th>H2Bp</th>
+      <td>0.000</td>
+      <td>0.366</td>
+      <td>0.206</td>
+      <td>-0.038, 0.77</td>
+    </tr>
+    <tr>
+      <th>H2Bpac</th>
+      <td>0.000</td>
+      <td>-0.306</td>
+      <td>0.211</td>
+      <td>-0.719, 0.107</td>
+    </tr>
+    <tr>
+      <th>H4p</th>
+      <td>0.000</td>
+      <td>-0.237</td>
+      <td>0.167</td>
+      <td>-0.564, 0.089</td>
+    </tr>
+    <tr>
+      <th>H4pac</th>
+      <td>0.000</td>
+      <td>0.314</td>
+      <td>0.169</td>
+      <td>-0.018, 0.646</td>
+    </tr>
+    <tr>
+      <th>Histones</th>
+      <td>0.337</td>
+      <td>0.518</td>
+      <td>0.196</td>
+      <td>0.133, 0.903</td>
+    </tr>
+    <tr>
+      <th>IFNLambda</th>
+      <td>-0.043</td>
+      <td>-0.134</td>
+      <td>0.143</td>
+      <td>-0.413, 0.146</td>
+    </tr>
+    <tr>
+      <th>IFNOmega</th>
+      <td>-0.052</td>
+      <td>-0.139</td>
+      <td>0.137</td>
+      <td>-0.407, 0.129</td>
+    </tr>
+    <tr>
+      <th>Jo1</th>
+      <td>-0.063</td>
+      <td>-0.102</td>
+      <td>0.145</td>
+      <td>-0.385, 0.181</td>
+    </tr>
+    <tr>
+      <th>Ku</th>
+      <td>0.000</td>
+      <td>0.038</td>
+      <td>0.150</td>
+      <td>-0.255, 0.331</td>
+    </tr>
+    <tr>
+      <th>LaSSB</th>
+      <td>0.025</td>
+      <td>0.174</td>
+      <td>0.173</td>
+      <td>-0.164, 0.513</td>
+    </tr>
+    <tr>
+      <th>MBL2</th>
+      <td>0.000</td>
+      <td>0.137</td>
+      <td>0.144</td>
+      <td>-0.145, 0.419</td>
+    </tr>
+    <tr>
+      <th>Mi2</th>
+      <td>-0.034</td>
+      <td>-0.306</td>
+      <td>0.149</td>
+      <td>-0.599, -0.014</td>
+    </tr>
+    <tr>
+      <th>Nucleosome</th>
+      <td>0.000</td>
+      <td>0.045</td>
+      <td>0.221</td>
+      <td>-0.387, 0.477</td>
+    </tr>
+    <tr>
+      <th>PCNA</th>
+      <td>0.000</td>
+      <td>0.062</td>
+      <td>0.171</td>
+      <td>-0.273, 0.397</td>
+    </tr>
+    <tr>
+      <th>Pentraxin3</th>
+      <td>0.000</td>
+      <td>0.344</td>
+      <td>0.173</td>
+      <td>0.004, 0.684</td>
+    </tr>
+    <tr>
+      <th>PmScl100</th>
+      <td>0.000</td>
+      <td>0.054</td>
+      <td>0.132</td>
+      <td>-0.205, 0.312</td>
+    </tr>
+    <tr>
+      <th>RA33</th>
+      <td>0.000</td>
+      <td>-0.174</td>
+      <td>0.156</td>
+      <td>-0.48, 0.132</td>
+    </tr>
+    <tr>
+      <th>RipP0</th>
+      <td>0.097</td>
+      <td>0.521</td>
+      <td>0.225</td>
+      <td>0.081, 0.962</td>
+    </tr>
+    <tr>
+      <th>RipP0peptide</th>
+      <td>0.000</td>
+      <td>0.016</td>
+      <td>0.172</td>
+      <td>-0.32, 0.353</td>
+    </tr>
+    <tr>
+      <th>RipP1</th>
+      <td>0.038</td>
+      <td>0.155</td>
+      <td>0.193</td>
+      <td>-0.224, 0.533</td>
+    </tr>
+    <tr>
+      <th>RipP2</th>
+      <td>0.000</td>
+      <td>-0.069</td>
+      <td>0.219</td>
+      <td>-0.498, 0.36</td>
+    </tr>
+    <tr>
+      <th>RNAPolIII</th>
+      <td>0.000</td>
+      <td>-0.065</td>
+      <td>0.141</td>
+      <td>-0.341, 0.211</td>
+    </tr>
+    <tr>
+      <th>RNP70</th>
+      <td>-0.114</td>
+      <td>-0.579</td>
+      <td>0.170</td>
+      <td>-0.913, -0.244</td>
+    </tr>
+    <tr>
+      <th>RNPA</th>
+      <td>0.000</td>
+      <td>0.103</td>
+      <td>0.153</td>
+      <td>-0.198, 0.403</td>
+    </tr>
+    <tr>
+      <th>RNPC</th>
+      <td>0.000</td>
+      <td>0.098</td>
+      <td>0.149</td>
+      <td>-0.195, 0.39</td>
+    </tr>
+    <tr>
+      <th>Ro52</th>
+      <td>0.000</td>
+      <td>-0.457</td>
+      <td>0.218</td>
+      <td>-0.884, -0.03</td>
+    </tr>
+    <tr>
+      <th>Ro60</th>
+      <td>0.071</td>
+      <td>0.410</td>
+      <td>0.233</td>
+      <td>-0.047, 0.867</td>
+    </tr>
+    <tr>
+      <th>RPP25ThTo</th>
+      <td>-0.077</td>
+      <td>-0.287</td>
+      <td>0.148</td>
+      <td>-0.578, 0.003</td>
+    </tr>
+    <tr>
+      <th>Scl70</th>
+      <td>0.000</td>
+      <td>-0.054</td>
+      <td>0.145</td>
+      <td>-0.338, 0.231</td>
+    </tr>
+    <tr>
+      <th>SmBB</th>
+      <td>0.479</td>
+      <td>0.949</td>
+      <td>0.203</td>
+      <td>0.552, 1.346</td>
+    </tr>
+    <tr>
+      <th>SMP</th>
+      <td>-0.007</td>
+      <td>-0.484</td>
+      <td>0.189</td>
+      <td>-0.854, -0.114</td>
+    </tr>
+    <tr>
+      <th>TIF1gamma</th>
+      <td>0.000</td>
+      <td>0.021</td>
+      <td>0.145</td>
+      <td>-0.262, 0.305</td>
+    </tr>
+    <tr>
+      <th>TPO</th>
+      <td>-0.080</td>
+      <td>-0.207</td>
+      <td>0.129</td>
+      <td>-0.459, 0.045</td>
+    </tr>
+    <tr>
+      <th>tTG</th>
+      <td>0.089</td>
+      <td>0.349</td>
+      <td>0.131</td>
+      <td>0.093, 0.605</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="45">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>pal <span class="op">=</span> sns.diverging_palette(<span class="dv">250</span>, <span class="dv">15</span>, s<span class="op">=</span><span class="dv">75</span>, l<span class="op">=</span><span class="dv">40</span>, center<span class="op">=</span><span class="st">"dark"</span>, as_cmap<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> sns.plotting_context(<span class="st">"paper"</span>):</span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> sns.axes_style(<span class="st">"whitegrid"</span>):</span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>        fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">2.5</span>, <span class="dv">5</span>))</span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>        g <span class="op">=</span> sns.scatterplot(y<span class="op">=</span>coefs_final_nonimid.index, x<span class="op">=</span>coefs_final_nonimid.values, </span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>                            hue<span class="op">=</span>coefs_final_nonimid.values, palette<span class="op">=</span>pal, legend<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a>        ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">'SLE vs.non-IMID'</span>,</span>
+<span id="cb71-8"><a href="#cb71-8" aria-hidden="true" tabindex="-1"></a>               xticks<span class="op">=</span>np.linspace(<span class="op">-</span><span class="fl">1.0</span>,<span class="fl">1.0</span>,<span class="dv">5</span>), xlim<span class="op">=</span>[<span class="op">-</span><span class="fl">1.2</span>,<span class="fl">1.2</span>], xlabel<span class="op">=</span><span class="vs">r'$\beta$'</span>)</span>
+<span id="cb71-9"><a href="#cb71-9" aria-hidden="true" tabindex="-1"></a>        sns.despine(fig<span class="op">=</span>fig,ax<span class="op">=</span>ax, left<span class="op">=</span><span class="va">True</span>, bottom<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb71-10"><a href="#cb71-10" aria-hidden="true" tabindex="-1"></a>        <span class="co">#fig.savefig('coefs_SLE_nonIMID.png', bbox_inches='tight', dpi=300, transparent=True)</span></span>
+<span id="cb71-11"><a href="#cb71-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">#fig.savefig('coefs_SLE_nonIMID.pdf', bbox_inches='tight', transparent=True)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-47-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<section id="stability" class="level4">
+<h4 class="anchored" data-anchor-id="stability">Stability</h4>
+<p>In contrast to the blood bank controls, refitting with the chosen lambda to the whole dataset here seems to include much more features than during CV: 29 vs &lt; 20. Might suggest that the included features are less stable. So let’s examine stability selection again:</p>
+<div class="cell" data-execution_count="46">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>time</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>selector_nonIMID <span class="op">=</span> StabilitySelection(base_estimator<span class="op">=</span>pipe, lambda_name<span class="op">=</span><span class="st">'clf__C'</span>,</span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>                                  lambda_grid<span class="op">=</span>Cs_lasso_nonIMID[np.argmax(lasso_nonIMID.cv_results_[<span class="st">"mean_test_score"</span>]):],</span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>                                  random_state<span class="op">=</span><span class="dv">40</span>) <span class="co"># range from lambda with highest score to lambda_max</span></span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>selector_nonIMID.fit(Xp1_nonIMID, y_nonIMID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>CPU times: user 9min 4s, sys: 0 ns, total: 9min 4s
+Wall time: 9min 7s</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="46">
+<pre><code>StabilitySelection(base_estimator=Pipeline(steps=[('trf',
+                                                   PowerTransformer(method='box-cox')),
+                                                  ('clf',
+                                                   LogisticRegression(max_iter=10000,
+                                                                      penalty='l1',
+                                                                      solver='liblinear'))]),
+                   lambda_grid=array([0.45998198, 0.42898073, 0.40006887, 0.37310557, 0.3479595 ,
+       0.32450819, 0.30263743, 0.28224068, 0.2632186 , 0.24547855,
+       0.22893412, 0.21350472, 0.19911522, 0.18569552, 0.1731802...
+       0.05670873, 0.05288675, 0.04932236, 0.0459982 , 0.04289807,
+       0.04000689, 0.03731056, 0.03479595, 0.03245082, 0.03026374,
+       0.02822407, 0.02632186, 0.02454785, 0.02289341, 0.02135047,
+       0.01991152, 0.01856955, 0.01731803, 0.01615085, 0.01506234,
+       0.01404719, 0.01310045, 0.01221753, 0.0113941 , 0.01062618,
+       0.00991001, 0.00924211, 0.00861922, 0.00803832, 0.00749656,
+       0.00699132, 0.00652013]),
+                   lambda_name='clf__C', random_state=40)</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="47">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>thresh <span class="op">=</span> <span class="fl">.70</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>plot_stability_path(selector_nonIMID, threshold_highlight<span class="op">=</span>thresh)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="47">
+<pre><code>(&lt;Figure size 432x288 with 1 Axes&gt;,
+ &lt;matplotlib.axes._subplots.AxesSubplot at 0x7f7c392aae90&gt;)</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-49-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="48">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>selector_nonIMID.set_params(threshold<span class="op">=</span>thresh)</span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>selected_variables <span class="op">=</span> selector_nonIMID.get_support(indices<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>selected_scores <span class="op">=</span> selector_nonIMID.stability_scores_.<span class="bu">max</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-5"><a href="#cb77-5" aria-hidden="true" tabindex="-1"></a>pd.DataFrame({<span class="st">'Variable'</span>: Xp1_nonIMID.columns[selected_variables], </span>
+<span id="cb77-6"><a href="#cb77-6" aria-hidden="true" tabindex="-1"></a>              <span class="st">'Stability score'</span>: selected_scores[selected_variables]}).sort_values(by<span class="op">=</span><span class="st">'Stability score'</span>, ascending<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="48">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Variable</th>
+      <th>Stability score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>27</th>
+      <td>SmBB</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>dsDNA2</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>Histones</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>RNP70</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>CpGmot</td>
+      <td>0.99</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Beta2GP1</td>
+      <td>0.97</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>GBM</td>
+      <td>0.96</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>EphB2</td>
+      <td>0.95</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>FcER</td>
+      <td>0.94</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>Fibrillarin</td>
+      <td>0.94</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>ASCA</td>
+      <td>0.92</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>RipP0</td>
+      <td>0.92</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>RPP25ThTo</td>
+      <td>0.91</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>Mi2</td>
+      <td>0.90</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>TPO</td>
+      <td>0.89</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Enolasearg</td>
+      <td>0.89</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>SMP</td>
+      <td>0.88</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>IFNOmega</td>
+      <td>0.84</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>tTG</td>
+      <td>0.84</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>IFNLambda</td>
+      <td>0.81</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>CENP</td>
+      <td>0.80</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>Pentraxin3</td>
+      <td>0.78</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>GAPDH</td>
+      <td>0.78</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>H2Bp</td>
+      <td>0.77</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>Jo1</td>
+      <td>0.75</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Enolasecit</td>
+      <td>0.74</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>C3b</td>
+      <td>0.74</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>Ku</td>
+      <td>0.73</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>Ro60</td>
+      <td>0.72</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>Actinin</td>
+      <td>0.71</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>H4p</td>
+      <td>0.71</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+<p>Many of these seem to be selected as well by the 1SE LASSO model, but not all. For instance, the two variables with the lowest (positive) coefficients (<code>RipP1</code>, <code>LaSSB</code>) are missing here. At least in the case of <code>RipP1</code>, that might be because it’s highly correlated with other variables. When LASSO selects one of these, <code>RipP1</code> will not be, driving down its inclusion probability.</p>
+<p>All variables with a stability score of &gt; .80 are included in the 1SE LASSO model, but below there are some differences</p>
+</section>
+<section id="test-on-pre-sle-vs.-rest-group" class="level4">
+<h4 class="anchored" data-anchor-id="test-on-pre-sle-vs.-rest-group">Test on pre-SLE (vs.&nbsp;rest) group</h4>
+<div class="cell" data-execution_count="49">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>X_test, y_test <span class="op">=</span> prep_data(X_test_df, <span class="st">'preSLE'</span>, <span class="st">'rest_large'</span>, [<span class="st">"Arthritis"</span>,<span class="st">"Pleurisy"</span>,<span class="st">"Pericarditis"</span>,<span class="st">"Nefritis"</span>] <span class="op">+</span> [<span class="st">"dsDNA1"</span>])</span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>eval_model(lasso_nonIMID, X_test<span class="op">+</span><span class="dv">1</span>, y_test, <span class="st">'preSLE'</span>, <span class="st">'rest_large'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Threshold for classification: 0.5
+              precision    recall  f1-score   support
+
+  rest_large       0.99      0.51      0.67       462
+      preSLE       0.06      0.88      0.12        17
+
+    accuracy                           0.52       479
+   macro avg       0.53      0.70      0.39       479
+weighted avg       0.96      0.52      0.65       479
+
+N.B.: "recall" = sensitivity for the group in this row (e.g. preSLE); specificity for the other group (rest_large)
+N.B.: "precision" = PPV for the group in this row (e.g. preSLE); NPV for the other group (rest_large)
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-51-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-51-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Sensitivity is the same as when only using dsDNA, but specificity did improve quite a bit</p>
+<p><strong>Figure 3</strong>:</p>
+<div class="cell" data-execution_count="50">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>X_test, y_test <span class="op">=</span> prep_data(X_test_df, <span class="st">'preSLE'</span>, <span class="st">'rest_large'</span>, [<span class="st">"Arthritis"</span>,<span class="st">"Pleurisy"</span>,<span class="st">"Pericarditis"</span>,<span class="st">"Nefritis"</span>] <span class="op">+</span> [<span class="st">"dsDNA1"</span>])</span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ROC curve</span></span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>threshold1<span class="op">=</span><span class="fl">0.5</span></span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a>threshold2<span class="op">=</span><span class="fl">0.84</span></span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a>fpr, tpr, thresholds <span class="op">=</span> roc_curve(y_test, lasso_nonIMID.predict_proba(X_test<span class="op">+</span><span class="dv">1</span>)[:,<span class="dv">1</span>])</span>
+<span id="cb80-6"><a href="#cb80-6" aria-hidden="true" tabindex="-1"></a>thr_idx1 <span class="op">=</span> (np.<span class="bu">abs</span>(thresholds <span class="op">-</span> threshold1)).argmin() <span class="co"># find index of value closest to chosen threshold</span></span>
+<span id="cb80-7"><a href="#cb80-7" aria-hidden="true" tabindex="-1"></a>thr_idx2 <span class="op">=</span> (np.<span class="bu">abs</span>(thresholds <span class="op">-</span> threshold2)).argmin() <span class="co"># find index of value closest to chosen threshold</span></span>
+<span id="cb80-8"><a href="#cb80-8" aria-hidden="true" tabindex="-1"></a>sns.reset_defaults()</span>
+<span id="cb80-9"><a href="#cb80-9" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> sns.plotting_context(<span class="st">"paper"</span>):</span>
+<span id="cb80-10"><a href="#cb80-10" aria-hidden="true" tabindex="-1"></a>    plt.rcParams[<span class="st">"font.family"</span>] <span class="op">=</span> <span class="st">"Arial"</span></span>
+<span id="cb80-11"><a href="#cb80-11" aria-hidden="true" tabindex="-1"></a>    plt.rcParams[<span class="st">'pdf.fonttype'</span>] <span class="op">=</span> <span class="dv">42</span> <span class="co"># this causes the pdf to be editable, but it also embeds the font, significantly increasing the size</span></span>
+<span id="cb80-12"><a href="#cb80-12" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">4.5</span>, <span class="fl">4.5</span>))</span>
+<span id="cb80-13"><a href="#cb80-13" aria-hidden="true" tabindex="-1"></a>    ax.plot([<span class="dv">0</span>, <span class="dv">1</span>], [<span class="dv">0</span>, <span class="dv">1</span>], linestyle<span class="op">=</span><span class="st">'--'</span>, lw<span class="op">=</span><span class="fl">1.5</span>, color<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">.25</span>)</span>
+<span id="cb80-14"><a href="#cb80-14" aria-hidden="true" tabindex="-1"></a>    ax.<span class="bu">set</span>(title<span class="op">=</span><span class="st">"Pre-SLE vs. Rest"</span>,</span>
+<span id="cb80-15"><a href="#cb80-15" aria-hidden="true" tabindex="-1"></a>           xlim<span class="op">=</span>[<span class="op">-</span><span class="fl">0.05</span>, <span class="fl">1.05</span>], xlabel<span class="op">=</span><span class="st">'False positive rate'</span>, </span>
+<span id="cb80-16"><a href="#cb80-16" aria-hidden="true" tabindex="-1"></a>           ylim<span class="op">=</span>[<span class="op">-</span><span class="fl">0.05</span>, <span class="fl">1.05</span>], ylabel<span class="op">=</span><span class="st">'True positive rate'</span>)</span>
+<span id="cb80-17"><a href="#cb80-17" aria-hidden="true" tabindex="-1"></a>    ymin, ymax <span class="op">=</span> ax.get_ylim()<span class="op">;</span> xmin, xmax <span class="op">=</span> ax.get_xlim()</span>
+<span id="cb80-18"><a href="#cb80-18" aria-hidden="true" tabindex="-1"></a>    plt.vlines(x<span class="op">=</span>fpr[thr_idx1], ymin<span class="op">=</span>ymin, ymax<span class="op">=</span>tpr[thr_idx1], color<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">.6</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, axes<span class="op">=</span>ax) <span class="co"># plot line for fpr at threshold</span></span>
+<span id="cb80-19"><a href="#cb80-19" aria-hidden="true" tabindex="-1"></a>    plt.hlines(y<span class="op">=</span>tpr[thr_idx1], xmin<span class="op">=</span>xmin, xmax<span class="op">=</span>fpr[thr_idx1], color<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">.6</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, axes<span class="op">=</span>ax) <span class="co"># plot line for tpr at threshold</span></span>
+<span id="cb80-20"><a href="#cb80-20" aria-hidden="true" tabindex="-1"></a>    plt.vlines(x<span class="op">=</span>fpr[thr_idx2], ymin<span class="op">=</span>ymin, ymax<span class="op">=</span>tpr[thr_idx2], color<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">.6</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, axes<span class="op">=</span>ax) <span class="co"># plot line for fpr at threshold</span></span>
+<span id="cb80-21"><a href="#cb80-21" aria-hidden="true" tabindex="-1"></a>    plt.hlines(y<span class="op">=</span>tpr[thr_idx2], xmin<span class="op">=</span>xmin, xmax<span class="op">=</span>fpr[thr_idx2], color<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">.6</span>,  linestyle<span class="op">=</span><span class="st">'--'</span>, axes<span class="op">=</span>ax) <span class="co"># plot line for tpr at threshold</span></span>
+<span id="cb80-22"><a href="#cb80-22" aria-hidden="true" tabindex="-1"></a>    plot_roc_curve(lasso_nonIMID, X_test<span class="op">+</span><span class="dv">1</span>, y_test, name <span class="op">=</span> <span class="st">"LASSO"</span>, ax<span class="op">=</span>ax, color<span class="op">=</span><span class="st">'#D55E00'</span>, lw<span class="op">=</span><span class="dv">2</span>, alpha<span class="op">=</span><span class="fl">.8</span>)</span>
+<span id="cb80-23"><a href="#cb80-23" aria-hidden="true" tabindex="-1"></a>    plt.text(<span class="fl">0.56</span>,<span class="fl">0.81</span>, <span class="st">'1'</span>, fontsize<span class="op">=</span><span class="st">'large'</span>)</span>
+<span id="cb80-24"><a href="#cb80-24" aria-hidden="true" tabindex="-1"></a>    plt.text(<span class="fl">0.08</span>,<span class="fl">0.45</span>, <span class="st">'2'</span>, fontsize<span class="op">=</span><span class="st">'large'</span>)</span>
+<span id="cb80-25"><a href="#cb80-25" aria-hidden="true" tabindex="-1"></a>    sns.despine(fig<span class="op">=</span>fig,ax<span class="op">=</span>ax, trim<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb80-26"><a href="#cb80-26" aria-hidden="true" tabindex="-1"></a>    fig.savefig(<span class="st">'roc_pre-SLE_Rest.png'</span>, bbox_inches<span class="op">=</span><span class="st">'tight'</span>, dpi<span class="op">=</span><span class="dv">300</span>, transparent<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb80-27"><a href="#cb80-27" aria-hidden="true" tabindex="-1"></a>    fig.savefig(<span class="st">'roc_pre-SLE_Rest.pdf'</span>, bbox_inches<span class="op">=</span><span class="st">'tight'</span>, transparent<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-52-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">Threshold 0.6</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">Threshold 0.7</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-3" role="tab" aria-controls="tabset-3-3" aria-selected="false">Threshold 0.8</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-4" role="tab" aria-controls="tabset-3-4" aria-selected="false">Threshold 0.84</a></li></ul>
+<div class="tab-content">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div class="cell" data-execution_count="51">
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>X_test, y_test <span class="op">=</span> prep_data(X_test_df, <span class="st">'preSLE'</span>, <span class="st">'rest_large'</span>, [<span class="st">"Arthritis"</span>,<span class="st">"Pleurisy"</span>,<span class="st">"Pericarditis"</span>,<span class="st">"Nefritis"</span>]  <span class="op">+</span> [<span class="st">"dsDNA1"</span>])</span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>eval_model(lasso_nonIMID, X_test<span class="op">+</span><span class="dv">1</span>, y_test, <span class="st">'preSLE'</span>, <span class="st">'rest_large'</span>, threshold<span class="op">=</span><span class="fl">0.6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Threshold for classification: 0.6
+              precision    recall  f1-score   support
+
+  rest_large       0.99      0.67      0.80       462
+      preSLE       0.08      0.82      0.15        17
+
+    accuracy                           0.67       479
+   macro avg       0.54      0.75      0.48       479
+weighted avg       0.96      0.67      0.78       479
+
+N.B.: "recall" = sensitivity for the group in this row (e.g. preSLE); specificity for the other group (rest_large)
+N.B.: "precision" = PPV for the group in this row (e.g. preSLE); NPV for the other group (rest_large)
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-53-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-53-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+</div>
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div class="cell" data-execution_count="52">
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>X_test, y_test <span class="op">=</span> prep_data(X_test_df, <span class="st">'preSLE'</span>, <span class="st">'rest_large'</span>, [<span class="st">"Arthritis"</span>,<span class="st">"Pleurisy"</span>,<span class="st">"Pericarditis"</span>,<span class="st">"Nefritis"</span>] <span class="op">+</span> [<span class="st">"dsDNA1"</span>])</span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>eval_model(lasso_nonIMID, X_test<span class="op">+</span><span class="dv">1</span>, y_test, <span class="st">'preSLE'</span>, <span class="st">'rest_large'</span>, threshold<span class="op">=</span><span class="fl">0.7</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Threshold for classification: 0.7
+              precision    recall  f1-score   support
+
+  rest_large       0.99      0.81      0.89       462
+      preSLE       0.12      0.71      0.20        17
+
+    accuracy                           0.80       479
+   macro avg       0.55      0.76      0.54       479
+weighted avg       0.96      0.80      0.86       479
+
+N.B.: "recall" = sensitivity for the group in this row (e.g. preSLE); specificity for the other group (rest_large)
+N.B.: "precision" = PPV for the group in this row (e.g. preSLE); NPV for the other group (rest_large)
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-54-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-54-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+</div>
+<div id="tabset-3-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-3-tab">
+<div class="cell" data-execution_count="53">
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>X_test, y_test <span class="op">=</span> prep_data(X_test_df, <span class="st">'preSLE'</span>, <span class="st">'rest_large'</span>, [<span class="st">"Arthritis"</span>,<span class="st">"Pleurisy"</span>,<span class="st">"Pericarditis"</span>,<span class="st">"Nefritis"</span>] <span class="op">+</span> [<span class="st">"dsDNA1"</span>])</span>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a>eval_model(lasso_nonIMID, X_test<span class="op">+</span><span class="dv">1</span>, y_test, <span class="st">'preSLE'</span>, <span class="st">'rest_large'</span>, threshold<span class="op">=</span><span class="fl">0.8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Threshold for classification: 0.8
+              precision    recall  f1-score   support
+
+  rest_large       0.98      0.91      0.95       462
+      preSLE       0.18      0.53      0.27        17
+
+    accuracy                           0.90       479
+   macro avg       0.58      0.72      0.61       479
+weighted avg       0.95      0.90      0.92       479
+
+N.B.: "recall" = sensitivity for the group in this row (e.g. preSLE); specificity for the other group (rest_large)
+N.B.: "precision" = PPV for the group in this row (e.g. preSLE); NPV for the other group (rest_large)
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-55-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-55-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+</div>
+<div id="tabset-3-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-4-tab">
+<div class="cell" data-execution_count="54">
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>X_test, y_test <span class="op">=</span> prep_data(X_test_df, <span class="st">'preSLE'</span>, <span class="st">'rest_large'</span>, [<span class="st">"Arthritis"</span>,<span class="st">"Pleurisy"</span>,<span class="st">"Pericarditis"</span>,<span class="st">"Nefritis"</span>] <span class="op">+</span> [<span class="st">"dsDNA1"</span>])</span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>eval_model(lasso_nonIMID, X_test<span class="op">+</span><span class="dv">1</span>, y_test, <span class="st">'preSLE'</span>, <span class="st">'rest_large'</span>, threshold<span class="op">=</span><span class="fl">0.84</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Threshold for classification: 0.84
+              precision    recall  f1-score   support
+
+  rest_large       0.98      0.94      0.96       462
+      preSLE       0.25      0.53      0.34        17
+
+    accuracy                           0.93       479
+   macro avg       0.62      0.74      0.65       479
+weighted avg       0.96      0.93      0.94       479
+
+N.B.: "recall" = sensitivity for the group in this row (e.g. preSLE); specificity for the other group (rest_large)
+N.B.: "precision" = PPV for the group in this row (e.g. preSLE); NPV for the other group (rest_large)
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-56-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-56-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="test-on-lld-vs.-rest-2" class="level4">
+<h4 class="anchored" data-anchor-id="test-on-lld-vs.-rest-2">Test on LLD (vs.&nbsp;rest)</h4>
+<div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">Default threshold</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false">Threshold for high specificity</a></li></ul>
+<div class="tab-content">
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
+<div class="cell" data-execution_count="55">
+<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a>X_test, y_test <span class="op">=</span> prep_data(X_test_df, <span class="st">'LLD'</span>, <span class="st">'rest_large'</span>, [<span class="st">"Arthritis"</span>,<span class="st">"Pleurisy"</span>,<span class="st">"Pericarditis"</span>,<span class="st">"Nefritis"</span>] <span class="op">+</span> [<span class="st">"dsDNA1"</span>])</span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a>eval_model(lasso_nonIMID, X_test<span class="op">+</span><span class="dv">1</span>, y_test, <span class="st">'LLD'</span>, <span class="st">'rest_large'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Threshold for classification: 0.5
+              precision    recall  f1-score   support
+
+  rest_large       0.97      0.51      0.67       462
+         LLD       0.08      0.71      0.15        28
+
+    accuracy                           0.52       490
+   macro avg       0.52      0.61      0.41       490
+weighted avg       0.92      0.52      0.64       490
+
+N.B.: "recall" = sensitivity for the group in this row (e.g. LLD); specificity for the other group (rest_large)
+N.B.: "precision" = PPV for the group in this row (e.g. LLD); NPV for the other group (rest_large)
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-57-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-57-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Sensitivity was actually better for dsDNA only… But again, specificity here is much higher</p>
+</div>
+<div id="tabset-4-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-2-tab">
+<div class="cell" data-execution_count="56">
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a>X_test, y_test <span class="op">=</span> prep_data(X_test_df, <span class="st">'LLD'</span>, <span class="st">'rest_large'</span>, [<span class="st">"Arthritis"</span>,<span class="st">"Pleurisy"</span>,<span class="st">"Pericarditis"</span>,<span class="st">"Nefritis"</span>] <span class="op">+</span> [<span class="st">"dsDNA1"</span>])</span>
+<span id="cb91-2"><a href="#cb91-2" aria-hidden="true" tabindex="-1"></a>eval_model(lasso_nonIMID, X_test<span class="op">+</span><span class="dv">1</span>, y_test, <span class="st">'LLD'</span>, <span class="st">'rest_large'</span>, threshold <span class="op">=</span> <span class="fl">0.84</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Threshold for classification: 0.84
+              precision    recall  f1-score   support
+
+  rest_large       0.95      0.94      0.95       462
+         LLD       0.21      0.25      0.23        28
+
+    accuracy                           0.90       490
+   macro avg       0.58      0.60      0.59       490
+weighted avg       0.91      0.90      0.91       490
+
+N.B.: "recall" = sensitivity for the group in this row (e.g. LLD); specificity for the other group (rest_large)
+N.B.: "precision" = PPV for the group in this row (e.g. LLD); NPV for the other group (rest_large)
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-58-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-58-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="test-on-imid-vs.-blood-bank-1" class="level4">
+<h4 class="anchored" data-anchor-id="test-on-imid-vs.-blood-bank-1">Test on IMID (vs.&nbsp;blood bank)</h4>
+<div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true">Default threshold</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-2" role="tab" aria-controls="tabset-5-2" aria-selected="false">Threshold for high specificity</a></li></ul>
+<div class="tab-content">
+<div id="tabset-5-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-5-1-tab">
+<div class="cell" data-execution_count="57">
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a>X_test, y_test <span class="op">=</span> prep_data(data_all, <span class="st">'IMID'</span>, <span class="st">'BBD'</span>, [<span class="st">"Arthritis"</span>,<span class="st">"Pleurisy"</span>,<span class="st">"Pericarditis"</span>,<span class="st">"Nefritis"</span>] <span class="op">+</span> [<span class="st">"dsDNA1"</span>])</span>
+<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a>eval_model(lasso_nonIMID, X_test<span class="op">+</span><span class="dv">1</span>, y_test, <span class="st">'IMID'</span>, <span class="st">'BBD'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Threshold for classification: 0.5
+              precision    recall  f1-score   support
+
+         BBD       0.62      0.58      0.60       361
+        IMID       0.59      0.63      0.61       346
+
+    accuracy                           0.60       707
+   macro avg       0.60      0.60      0.60       707
+weighted avg       0.60      0.60      0.60       707
+
+N.B.: "recall" = sensitivity for the group in this row (e.g. IMID); specificity for the other group (BBD)
+N.B.: "precision" = PPV for the group in this row (e.g. IMID); NPV for the other group (BBD)
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-59-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-59-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+</div>
+<div id="tabset-5-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-2-tab">
+<div class="cell" data-execution_count="58">
+<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a>X_test, y_test <span class="op">=</span> prep_data(data_all, <span class="st">'IMID'</span>, <span class="st">'BBD'</span>, [<span class="st">"Arthritis"</span>,<span class="st">"Pleurisy"</span>,<span class="st">"Pericarditis"</span>,<span class="st">"Nefritis"</span>] <span class="op">+</span> [<span class="st">"dsDNA1"</span>])</span>
+<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a>eval_model(lasso_nonIMID, X_test<span class="op">+</span><span class="dv">1</span>, y_test, <span class="st">'IMID'</span>, <span class="st">'BBD'</span>, threshold <span class="op">=</span> <span class="fl">0.84</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Threshold for classification: 0.84
+              precision    recall  f1-score   support
+
+         BBD       0.54      0.99      0.70       361
+        IMID       0.96      0.13      0.23       346
+
+    accuracy                           0.57       707
+   macro avg       0.75      0.56      0.47       707
+weighted avg       0.75      0.57      0.47       707
+
+N.B.: "recall" = sensitivity for the group in this row (e.g. IMID); specificity for the other group (BBD)
+N.B.: "precision" = PPV for the group in this row (e.g. IMID); NPV for the other group (BBD)
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-60-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="SLE%20Versus%20nonIMID_files/figure-html/cell-60-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="random-forest" class="level2">
+<h2 class="anchored" data-anchor-id="random-forest">Random Forest</h2>
+<div class="cell" data-execution_count="59">
+<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a>clf_rf <span class="op">=</span> RandomForestClassifier(random_state<span class="op">=</span><span class="dv">40</span>)</span>
+<span id="cb97-2"><a href="#cb97-2" aria-hidden="true" tabindex="-1"></a>np.mean(cross_val_score(clf_rf, X_nonIMID, y_nonIMID, cv<span class="op">=</span>cv, scoring <span class="op">=</span> <span class="st">'roc_auc'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="59">
+<pre><code>0.8237835389830939</code></pre>
+</div>
+</div>
+<p>Untuned RF with no preprocessing performs similarly to logistic regression (but a little bit worse). Also very similar to current XGBoost models</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="https://github.com/umcu/SLE-autoantibody-prediction/blob/main/LICENSE">Copyright 2022, UMC Utrecht (MIT License)</a>
+  </li>  
+</ul>
+    </div>   
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://www.umcutrecht.nl">
+      <i class="bi bi-link" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/umcu">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/UMCU_Intl">
+      <i class="bi bi-twitter" role="img">
+</i> 
+    </a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+</body></html>

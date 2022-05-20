@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-0.9.426">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Leon C. Reteig">
+
+<title>SLE-autoantibody-prediction - Preprocessing</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link id="quarto-text-highlighting-styles" href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Preprocessing</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../" class="sidebar-logo-link">
+      <img src="https://cdn.worldvectorlogo.com/logos/umc-utrecht-1.svg" alt="" class="sidebar-logo py-0 d-lg-inline d-none">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">SLE-autoantibody-prediction</a> 
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/preprocess.html" class="sidebar-item-text sidebar-link active">Preprocessing</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/projection.html" class="sidebar-item-text sidebar-link">Dimensionality reduction / projections</a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+    <div class="sidebar-item-container"> 
+        <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Prediction</a>
+      <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+        <i class="bi bi-chevron-right ms-2"></i>
+      </a>
+    </div>
+    <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/Main Results.html" class="sidebar-item-text sidebar-link">Main Results</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/SLE Versus BBD.html" class="sidebar-item-text sidebar-link">Models for discriminating SLE patients from healthy controls (Blood Bank Donors)</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/SLE Versus nonIMID.html" class="sidebar-item-text sidebar-link">Models for discriminating SLE patients from nonIMID controls</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/Nefritis Versus non-nefritis.html" class="sidebar-item-text sidebar-link">Predict whether an SLE patient has nefritis or not</a>
+  </div>
+</li>
+    </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#load-data" id="toc-load-data" class="nav-link active" data-scroll-target="#load-data">Load data</a></li>
+  <li><a href="#process" id="toc-process" class="nav-link" data-scroll-target="#process">Process</a></li>
+  <li><a href="#write-data" id="toc-write-data" class="nav-link" data-scroll-target="#write-data">Write data</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/umcu/SLE-autoantibody-prediction/blob/main/notebooks/preprocess.ipynb" class="toc-action">View source</a></p><p><a href="https://github.com/umcu/SLE-autoantibody-prediction/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Preprocessing</h1>
+</div>
+
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    Leon C. Reteig 
+  </div>
+    <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            University Medical Center Utrecht
+          </p>
+      </div>
+    </div>
+
+
+
+<div class="quarto-title-meta">
+
+      
+    
+  </div>
+  
+
+</header>
+
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Citation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>This notebook contains code for the following project:</strong></p>
+<p>Brunekreef TE, Reteig LC, Limper M, Haitjema S, Dias J, Mathsson-Alm L, van Laar JM, Otten HG. <a href="https://doi.org/10.1016/j.humimm.2022.03.010">Microarray analysis of autoantibodies can identify future Systemic Lupus Erythematosus patients</a>. Human Immunology. 2022 Apr 11. doi:10.1016/j.humimm.2022.03.010</p>
+</div>
+</div>
+<div class="cell" data-pycharm="{&quot;is_executing&quot;:false,&quot;name&quot;:&quot;#%%\n&quot;}" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> feather </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="load-data" class="level2">
+<h2 class="anchored" data-anchor-id="load-data">Load data</h2>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>read_dir <span class="op">=</span> os.path.join(<span class="st">".."</span>, <span class="st">"data"</span>,<span class="st">"interim"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>write_dir <span class="op">=</span> os.path.join(<span class="st">".."</span>, <span class="st">"data"</span>,<span class="st">"processed"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>ref_dir <span class="op">=</span> os.path.join(<span class="st">".."</span>, <span class="st">"references"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:false}" data-pycharm="{&quot;is_executing&quot;:false,&quot;name&quot;:&quot;#%%\n&quot;}" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>other_imid_smps <span class="op">=</span> pd.read_spss(os.path.join(read_dir, <span class="st">"OtherIMID.sav"</span>),usecols<span class="op">=</span>[<span class="st">'samplenr'</span>]) <span class="co"># load only sample numbers from this file, as something's wrong with the formatting</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>all_first <span class="op">=</span> pd.read_spss(os.path.join(read_dir, <span class="st">"Alles 1e sample.sav"</span>)) <span class="co"># SLE patients (also has non- and other-IMID data)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>non_imid <span class="op">=</span> pd.read_spss(os.path.join(read_dir, <span class="st">"Non-Imid control set.sav"</span>))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>tmo <span class="op">=</span> pd.read_csv(os.path.join(read_dir, <span class="st">"TMO.csv"</span>)) <span class="co"># blood bank controls (also has data from SLE patients)</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>rest_smps <span class="op">=</span> pd.read_excel(os.path.join(read_dir, <span class="st">"Restgroep voor vergelijking.xlsx"</span>), engine<span class="op">=</span><span class="st">'openpyxl'</span>, usecols<span class="op">=</span>[<span class="st">'samplenr'</span>]) <span class="co"># contains sample numbers from rest group</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># load translation table of columns in TMO.csv vs. the .sav files</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>df_cols <span class="op">=</span> pd.read_csv(os.path.join(ref_dir, <span class="st">"chip_colnames.csv"</span>), sep<span class="op">=</span><span class="st">";"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>all_first <span class="op">=</span> all_first.set_index(<span class="st">'samplenr'</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>non_imid <span class="op">=</span> non_imid.set_index(<span class="st">'samplenr'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The <code>all_first</code> and <code>tmo</code> datasets contain data from more than one group</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:false}" data-pycharm="{&quot;is_executing&quot;:false,&quot;name&quot;:&quot;#%%\n&quot;}" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>sle <span class="op">=</span> all_first[all_first.SLE <span class="op">==</span> <span class="dv">1</span>] <span class="co"># subset with only SLE patients</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>blood_bank <span class="op">=</span> tmo[tmo.Class <span class="op">==</span> <span class="st">"nonSLE"</span>] <span class="co"># subset with only blood bank controls</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fix other-imids</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>smps_fixed <span class="op">=</span> [<span class="ss">f'</span><span class="sc">{</span>_<span class="sc">:04}</span><span class="ss">A'</span> <span class="cf">for</span> _ <span class="kw">in</span> pd.to_numeric(other_imid_smps[<span class="st">'samplenr'</span>],downcast<span class="op">=</span><span class="st">'unsigned'</span>)] <span class="co"># fix other_imid sample numbers</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>other_imid <span class="op">=</span> all_first.loc[smps_fixed] <span class="co"># get other-IMIDs from the full dataset</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># samples from patients who had no diagnosis at the time, but were later diagnosed with SLE</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>pre_smps <span class="op">=</span> [<span class="st">'0039A'</span>,<span class="st">'0159A'</span>,<span class="st">'0222A'</span>,<span class="st">'0228A'</span>,<span class="st">'0575A'</span>,<span class="st">'0633A'</span>,<span class="st">'1080A'</span>,<span class="st">'1117A'</span>,<span class="st">'1158A'</span>,<span class="st">'1160A'</span>,<span class="st">'1166A'</span>,<span class="st">'1193A'</span>,<span class="st">'1223A'</span>,<span class="st">'1305A'</span>,<span class="st">'1451A'</span>,<span class="st">'1981A'</span>,<span class="st">'0972A'</span>]</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>pre_sle <span class="op">=</span> all_first.loc[pre_smps]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># samples from patients who had no diagnosis at the time, or later, and are not in the non-imid group</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>rest_set <span class="op">=</span> <span class="bu">set</span>(rest_smps[<span class="st">'samplenr'</span>]) <span class="op">-</span> <span class="bu">set</span>(non_imid.index)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>rest <span class="op">=</span> all_first.loc[rest_set]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># we can also define the rest group less strictly, as "all the remaining samples":</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>rest_set_large <span class="op">=</span> (<span class="bu">set</span>(all_first.index) <span class="op">-</span> <span class="co"># set with all patient data from their first samples</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>            <span class="bu">set</span>(non_imid.index) <span class="op">-</span> <span class="co"># take out the non-IMIDS</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>            <span class="bu">set</span>(other_imid.index) <span class="op">-</span> <span class="co"># take out the other-IMIDS</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>            <span class="bu">set</span>(sle.index) <span class="op">-</span> <span class="co"># take out the SLE patients</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>            <span class="bu">set</span>(all_first.index[all_first.dsDNA2.isna()]) <span class="op">-</span> <span class="co"># take out those patients that weren't run on the chip (dsDNA2 column is empty)</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>            <span class="bu">set</span>(pre_sle.index)) <span class="co"># take out the pre-SLE samples, because we want to compare them to this group</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>rest_large <span class="op">=</span> all_first.loc[rest_set_large]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># samples from patients with lupus-like disease. N.B this includes 2 pre-sle patients</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>lld <span class="op">=</span> other_imid[other_imid.LLD<span class="op">==</span><span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(<span class="bu">set</span>(all_first.index) <span class="op">-</span> <span class="co"># set with all patient data from their first samples</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>            <span class="bu">set</span>(non_imid.index) <span class="op">-</span> <span class="co"># take out the non-IMIDS</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>            <span class="bu">set</span>(other_imid.index) <span class="op">-</span> <span class="co"># take out the other-IMIDS</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>            <span class="bu">set</span>(sle.index) <span class="op">-</span> <span class="co"># take out the SLE patients</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>            <span class="bu">set</span>(all_first.index[all_first.dsDNA2.isna()]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<pre><code>472</code></pre>
+</div>
+</div>
+</section>
+<section id="process" class="level2">
+<h2 class="anchored" data-anchor-id="process">Process</h2>
+<p>The chip columns are called differently in the <code>blood_bank</code> dataset than in the others.</p>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>df_cols</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>TF</th>
+      <th>TB_all</th>
+      <th>TB_selection</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Actinin</td>
+      <td>Actinin</td>
+      <td>Actinin</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>anti-IgE</td>
+      <td>antiIgE</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>ASCA</td>
+      <td>ASCA</td>
+      <td>ASCA</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Beta2GP1</td>
+      <td>Beta2GP1</td>
+      <td>Beta2GP1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>C1q</td>
+      <td>C1q</td>
+      <td>C1q</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>96</th>
+      <td>NaN</td>
+      <td>Strep15</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>97</th>
+      <td>NaN</td>
+      <td>Strep16</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>98</th>
+      <td>TIF1gamma</td>
+      <td>TIF1gamma</td>
+      <td>TIF1gamma</td>
+    </tr>
+    <tr>
+      <th>99</th>
+      <td>TPO</td>
+      <td>TPO</td>
+      <td>TPO</td>
+    </tr>
+    <tr>
+      <th>100</th>
+      <td>tTG</td>
+      <td>tTG</td>
+      <td>tTG</td>
+    </tr>
+  </tbody>
+</table>
+<p>101 rows × 3 columns</p>
+</div>
+</div>
+</div>
+<ul>
+<li><code>TF</code> are the names in <code>blood_bank</code></li>
+<li><code>TB_all</code> are the names in the other dfs</li>
+<li><code>TB_selection</code> are names of the variables that should be most interesting (e.g.&nbsp;excluding control spots on the chip).</li>
+</ul>
+<p>Each row corresponds to the same variable, but it might have a different name in each column!</p>
+<p>Rename the columns in <code>blood_bank</code> as in the other data sets:</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:false}" data-pycharm="{&quot;is_executing&quot;:false,&quot;name&quot;:&quot;#%%\n&quot;}" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>new_colnames <span class="op">=</span> df_cols.TB_all[df_cols.TF.notnull()].tolist() <span class="co"># list of new names for blood bank columns</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>blood_bank <span class="op">=</span> blood_bank.drop(columns<span class="op">=</span><span class="st">'Class'</span>) <span class="co"># this column is in blood_bank, but not in the list (we'll add it back later)</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>blood_bank.columns <span class="op">=</span> new_colnames <span class="co"># rename columns as in other datasets</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We want only the rows that have an entry in all three columns: these are the variables we want to use</p>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>keep_cols <span class="op">=</span> df_cols.dropna().TB_all.tolist() <span class="co"># names of variables that exist in both datasets, and that are of interest</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>keep_cols</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<pre><code>['Actinin',
+ 'ASCA',
+ 'Beta2GP1',
+ 'C1q',
+ 'C3b',
+ 'Cardiolipin',
+ 'CCP1arg',
+ 'CCP1cit',
+ 'CENP',
+ 'CMV',
+ 'CollagenII',
+ 'CpGmot',
+ 'CRP1',
+ 'DFS70',
+ 'dsDNA2',
+ 'Enolasearg',
+ 'Enolasecit',
+ 'EphB2',
+ 'FcER',
+ 'Fibrillarin',
+ 'Ficolin',
+ 'GAPDH',
+ 'GBM',
+ 'H2Bp',
+ 'H2Bpac',
+ 'H4p',
+ 'H4pac',
+ 'Histones',
+ 'IFNLambda',
+ 'IFNOmega',
+ 'Jo1',
+ 'Ku',
+ 'LaSSB',
+ 'MBL2',
+ 'Mi2',
+ 'Nucleosome',
+ 'PCNA',
+ 'Pentraxin3',
+ 'PmScl100',
+ 'RA33',
+ 'RipP0',
+ 'RipP0peptide',
+ 'RipP1',
+ 'RipP2',
+ 'RNAPolIII',
+ 'RNP70',
+ 'RNPA',
+ 'RNPC',
+ 'Ro52',
+ 'Ro60',
+ 'RPP25ThTo',
+ 'Scl70',
+ 'SmBB',
+ 'SMP',
+ 'TIF1gamma',
+ 'TPO',
+ 'tTG']</code></pre>
+</div>
+</div>
+<p>Aside from diagnosis, we’re also interested in discrimating between patients depending on the presence of these 4 symptoms:</p>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>symptoms <span class="op">=</span> [<span class="st">'Arthritis'</span>, <span class="st">'Pleurisy'</span>, <span class="st">'Pericarditis'</span>, <span class="st">'Nefritis'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Likewise, we also want to compare anti-dsDNA measured on the microchip array (<code>dsDNA2</code>) to the standard measurements taken in the clinic (<code>dsDNA1</code>)</p>
+<div class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>lab <span class="op">=</span> [<span class="st">'dsDNA1'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>In all datasets, keep only columns of interest</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:false}" data-pycharm="{&quot;is_executing&quot;:false,&quot;name&quot;:&quot;#%%\n&quot;}" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>blood_bank <span class="op">=</span> blood_bank.loc[:,keep_cols] <span class="co"># we don't have symptoms info or lab dsDNA for this group</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>other_imid <span class="op">=</span> other_imid.loc[:,keep_cols<span class="op">+</span>symptoms<span class="op">+</span>lab] </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>non_imid <span class="op">=</span> non_imid.loc[:,keep_cols<span class="op">+</span>symptoms<span class="op">+</span>lab]</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>sle <span class="op">=</span> sle.loc[:,keep_cols<span class="op">+</span>symptoms<span class="op">+</span>lab]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>pre_sle <span class="op">=</span> pre_sle.loc[:,keep_cols<span class="op">+</span>symptoms<span class="op">+</span>lab]</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>rest <span class="op">=</span> rest.loc[:,keep_cols<span class="op">+</span>symptoms<span class="op">+</span>lab]</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>rest_large <span class="op">=</span> rest_large.loc[:,keep_cols<span class="op">+</span>symptoms<span class="op">+</span>lab]</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>lld <span class="op">=</span> lld.loc[:,keep_cols<span class="op">+</span>symptoms<span class="op">+</span>lab]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Discard one SLE patient with missing data</p>
+<div class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>sle <span class="op">=</span> sle.dropna(subset<span class="op">=</span>keep_cols) <span class="co"># serum from one SLE patient was not run on chip</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>And row-bind all the data frames together</p>
+<div class="cell" data-jupyter="{&quot;outputs_hidden&quot;:false}" data-pycharm="{&quot;is_executing&quot;:false,&quot;name&quot;:&quot;#%%\n&quot;}" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># add class to distinguish from others</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>blood_bank[<span class="st">'Class'</span>] <span class="op">=</span> <span class="st">"BBD"</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>other_imid[<span class="st">'Class'</span>] <span class="op">=</span> <span class="st">"IMID"</span> </span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>non_imid[<span class="st">'Class'</span>] <span class="op">=</span> <span class="st">"nonIMID"</span> </span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>sle[<span class="st">'Class'</span>] <span class="op">=</span> <span class="st">"SLE"</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co"># join all data frames together by binding rows</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>df_all <span class="op">=</span> pd.concat([sle, other_imid, non_imid, blood_bank])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>rest[<span class="st">'Class'</span>] <span class="op">=</span> <span class="st">"rest"</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>rest_large[<span class="st">'Class'</span>] <span class="op">=</span> <span class="st">"rest_large"</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>pre_sle[<span class="st">'Class'</span>] <span class="op">=</span> <span class="st">"preSLE"</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>lld[<span class="st">'Class'</span>] <span class="op">=</span> <span class="st">"LLD"</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>df_eval <span class="op">=</span> pd.concat([pre_sle, rest, rest_large, lld])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>df_all[<span class="st">'Class'</span>].value_counts()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
+<pre><code>SLE        483
+BBD        361
+IMID       346
+nonIMID    218
+Name: Class, dtype: int64</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>df_eval[<span class="st">'Class'</span>].value_counts()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="23">
+<pre><code>rest_large    462
+rest          415
+LLD            28
+preSLE         17
+Name: Class, dtype: int64</code></pre>
+</div>
+</div>
+</section>
+<section id="write-data" class="level2">
+<h2 class="anchored" data-anchor-id="write-data">Write data</h2>
+<div class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>feather.write_dataframe(df_all, os.path.join(write_dir, <span class="st">"imid.feather"</span>))</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>feather.write_dataframe(df_eval, os.path.join(write_dir, <span class="st">"rest.feather"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="https://github.com/umcu/SLE-autoantibody-prediction/blob/main/LICENSE">Copyright 2022, UMC Utrecht (MIT License)</a>
+  </li>  
+</ul>
+    </div>   
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://www.umcutrecht.nl">
+      <i class="bi bi-link" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/umcu">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/UMCU_Intl">
+      <i class="bi bi-twitter" role="img">
+</i> 
+    </a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+</body></html>
