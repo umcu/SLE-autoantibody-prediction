@@ -1,0 +1,13 @@
+project:
+  title: "SLE-autoantibody-prediction"
+
+author: 
+  - name: Leon C. Reteig
+    affiliation: University Medical Center Utrecht
+toc: true
+format:
+  html:
+    anchor-sections: true
+    code-tools:
+      toggle: false
+      source: repo
